@@ -25,7 +25,8 @@ const Dictionary:React.FC = () => {
 
   const REQUEST_URL:string = 'https://api.dictionaryapi.dev/api/v2/entries/es/';
 
-  const getByLetterStart = (dictionary:Object):Function => {
+  const getByLetterStart = (dictionary:any):Function => {
+    console.log(dictionary);
     return (letter:string):Array<string> => dictionary[letter];
   }
 
@@ -82,21 +83,21 @@ const Dictionary:React.FC = () => {
     });
   }
 
-  useEffect(async () => {
-    const words:Object = await axios.get('http://localhost:3000/api/data').then(response => {
-      return response.data;
+  useEffect(() => {
+    axios.get('http://localhost:3000/api/data').then(response => {
+      const words = response.data;
+
+      (letterButtons.length === 0) && setLetterButtons(() => Object.keys(words));
+
+      const wordsByLetterStart:Array<string> = getByLetterStart(words)(showingLetter);
+
+      const definitions:Promise<Array<WordDef>> = getWordsWithDef(wordsByLetterStart)(10, 0);
+      definitions.then(defsToShow => {
+        setWordsDef(() => defsToShow);
+      });
+
+      setWordsByLetterShowing(() => wordsByLetterStart);
     });
-
-    (letterButtons.length === 0) && setLetterButtons(() => Object.keys(words));
-
-    const wordsByLetterStart:Array<string> = getByLetterStart(words)(showingLetter);
-
-    const definitions:Promise<Array<WordDef>> = getWordsWithDef(wordsByLetterStart)(10, 0);
-    definitions.then(defsToShow => {
-      setWordsDef(() => defsToShow);
-    });
-
-    setWordsByLetterShowing(() => wordsByLetterStart);
   }, [showingLetter]);
 
   const extractDefinition:Function = (word:WordDef):Object => {
