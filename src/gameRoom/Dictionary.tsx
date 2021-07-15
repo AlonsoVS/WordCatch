@@ -1,23 +1,139 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import DictionaryItem from './DictionaryItem';
+
+type Meaning = {
+  partOfSpeech:string,
+  definitions: Array<Object>
+}
+
+type WordDef = {
+  word:string,
+  phonetics:Array<Object>,
+  meanings:Array<Meaning>
+};
 
 const Dictionary:React.FC = () => {
 
+  const [wordsDef, setWordsDef]  = useState<Array<WordDef>>([]);
+
+  const [showingLetter, setShowingLetter] = useState<string>('a');
+
+  const [letterButtons, setLetterButtons] = useState<Array<string>>([]);
+
+  const [wordsByLetterShowing, setWordsByLetterShowing] = useState<Array<string>>([]);
+
   const REQUEST_URL:string = 'https://api.dictionaryapi.dev/api/v2/entries/es/';
 
-  const words:Array<string> = [ 'aarónico', 'aaronita', 'aba', 'ababa', 'ababillarse',
-                                'ababol', 'abacá','abacal', 'abacalero', 'abacería' ];
+  const getByLetterStart = (dictionary:Object):Function => {
+    return (letter:string):Array<string> => dictionary[letter];
+  }
+
+  const changeLetterShowing:Function = (letter:string) => {
+    setShowingLetter(() => letter);
+  }
+
+  const getDefinition:Function = (url:string):Function => {
+    return async (word:string):Promise<Object> => {
+      let definition:any = null;
+      await axios
+        .get(url.concat(word))
+        .then(response => {
+          definition = response.data;
+        })
+        .catch(error => {console.log("An error has occurred loadig word definition", error)});
+      return definition;
+    }
+  }
+
+  const getWordsWithDef = (words:Array<string>) => async (maxWords:number, startIndex:number) => {
+
+    const max:number = maxWords;
+
+    let startIdx = startIndex;
+    let endIdx = startIndex + max;
+
+    let defs:Array<WordDef> = [];
+
+    const definitionES:Function = getDefinition(REQUEST_URL);
+
+    while (defs.length < max && words.length > 0) {
+      const wordsShowing:Array<string> = words.slice(startIdx, endIdx);
+      const definitions:Array<Promise<any>> = wordsShowing
+        .map(word => definitionES(word));
+    
+      await Promise.all(definitions).then(response => {
+        const found = response.filter(word => word !== null).map(word => word[0]);
+        const rest = max - defs.length;
+        defs = defs.concat(found.filter((word, index) => index < rest));
+      });
+      startIdx += max;
+      endIdx += max;
+    }
+    return defs;
+  }
+
+  const handleShowMoreWords = (wordsByLetter:Array<string>) => {
+    const lastWordShowing = wordsDef[wordsDef.length - 1];
+    const startIndex = wordsByLetter.indexOf(lastWordShowing.word) + 1;
+    const definitions:Promise<Array<WordDef>> = getWordsWithDef(wordsByLetter)(5, startIndex);
+    definitions.then(defsToShow => {
+      setWordsDef(() => wordsDef.concat(defsToShow));
+    });
+  }
+
+  useEffect(async () => {
+    const words:Object = await axios.get('http://localhost:3000/api/data').then(response => {
+      return response.data;
+    });
+
+    (letterButtons.length === 0) && setLetterButtons(() => Object.keys(words));
+
+    const wordsByLetterStart:Array<string> = getByLetterStart(words)(showingLetter);
+
+    const definitions:Promise<Array<WordDef>> = getWordsWithDef(wordsByLetterStart)(10, 0);
+    definitions.then(defsToShow => {
+      setWordsDef(() => defsToShow);
+    });
+
+    setWordsByLetterShowing(() => wordsByLetterStart);
+  }, [showingLetter]);
+
+  const extractDefinition:Function = (word:WordDef):Object => {
+    let def:Object = { word: word.word };
+    word.meanings.forEach(meaning => {
+      def = { ...def, ...meaning }
+    })
+    return def;
+  }
 
   return (
-    <div>
-      <dl>
-        {words.map(word => (
-          <>
-            <dt>{word}</dt>
-            <dd>{`${REQUEST_URL}${word}`}</dd>
-          </>
-        )
-        )}
-      </dl>
+    <div style={{
+      height: '65%',
+      width: '60%',
+      background: '#03a9f4',
+      borderRadius: '12px',
+      padding: '1rem',
+      overflow: 'hidden'
+    }}>
+      <div style={{ overflow: 'auto', height: '90%' }}>
+        {wordsDef.map((wordDef, idx:number) => {
+          const word = extractDefinition(wordDef);
+          return <DictionaryItem {...word}/>;
+        })}
+      </div>
+      <div style={{ margin: '1rem' }}>
+        {letterButtons.map(letter => {
+          return (
+            <button onClick={()=>changeLetterShowing(letter)}>
+              {letter}
+            </button>
+          )
+        })}
+        <button onClick={() => handleShowMoreWords(wordsByLetterShowing)}>
+          Show More
+        </button>
+      </div>
     </div>
   );
 }
