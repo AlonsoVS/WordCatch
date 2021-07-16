@@ -1,6 +1,7 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import DictionaryItem from './DictionaryItem';
+import WithSelect from './WithSelect';
 
 type Meaning = {
   partOfSpeech:string,
@@ -23,10 +24,11 @@ const Dictionary:React.FC = () => {
 
   const [wordsByLetterShowing, setWordsByLetterShowing] = useState<Array<string>>([]);
 
+  const [wordsSelected, setWordsSelected] = useState<Array<any>>([]);
+
   const REQUEST_URL:string = 'https://api.dictionaryapi.dev/api/v2/entries/es/';
 
   const getByLetterStart = (dictionary:any):Function => {
-    console.log(dictionary);
     return (letter:string):Array<string> => dictionary[letter];
   }
 
@@ -108,6 +110,18 @@ const Dictionary:React.FC = () => {
     return def;
   }
 
+  const handleWordSelect = (word:any, selected:boolean) => {
+    if (selected) {
+      setWordsSelected(() => new Array<any>(...wordsSelected, word));
+    } else if (wordsSelected.length > 0) {
+        if (wordsSelected.find(element => element.word === word.word)) {
+          setWordsSelected(
+            () => wordsSelected.filter(element => element.word !== word.word)
+          );
+        }
+    }
+  }
+
   return (
     <div style={{
       height: '65%',
@@ -120,13 +134,18 @@ const Dictionary:React.FC = () => {
       <div style={{ overflow: 'auto', height: '90%' }}>
         {wordsDef.map((wordDef, idx:number) => {
           const word = extractDefinition(wordDef);
-          return <DictionaryItem {...word}/>;
+          const props = {...word, id:idx};
+          return (
+            <WithSelect onSelect={handleWordSelect}>
+              <DictionaryItem {...props} />
+            </WithSelect>
+          );
         })}
       </div>
       <div style={{ margin: '1rem' }}>
-        {letterButtons.map(letter => {
+        {letterButtons.map((letter, idx) => {
           return (
-            <button onClick={()=>changeLetterShowing(letter)}>
+            <button key={idx} onClick={()=>changeLetterShowing(letter)}>
               {letter}
             </button>
           )
