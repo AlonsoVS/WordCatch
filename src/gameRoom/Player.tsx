@@ -1,7 +1,7 @@
-import { FC, useState } from 'react'
+import { FC } from 'react'
 import Dictionary from './Dictionary';
 import GuessView from './GuessView';
-import WordsSelectedView from './WordsSelectedView';
+import WordsSelectView from './WordsSelectView';
 
 type PlayTurn = {
   mode:string,
@@ -32,7 +32,7 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }
         case 'catch':
           return <Dictionary onSelectedDone={playWords} />;
         case 'select':
-          return <WordsSelectedView words={turn.words} onSelectedDone={playWords} />;
+          return <WordsSelectView words={turn.words} onSelectedDone={playWords} />;
         case 'guess':
           return <GuessView onSendIntents={handleIntent} words={turn.words} />
       }

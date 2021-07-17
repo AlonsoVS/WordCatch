@@ -7,7 +7,7 @@ type Props = {
   onSelectedDone:Function
 }
 
-const WordSelectedView:FC<Props> = ({ words, onSelectedDone }) => {
+const WordsSelectView:FC<Props> = ({ words, onSelectedDone }) => {
   const [wordsSelected, setWordsSelected] = useState<Array<any>>([]);
   const handleWordSelect = (word:any, selected:boolean) => {
     if (selected) {
@@ -45,4 +45,4 @@ const WordSelectedView:FC<Props> = ({ words, onSelectedDone }) => {
   )
 }
 
-export default WordSelectedView
+export default WordsSelectView

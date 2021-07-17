@@ -9,12 +9,9 @@ type Props = {
 const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
   const [word, setWord] = useState<string>('');
 
-  /* const handleSetDisabled = (value:boolean) => {
-    setDisabled(() => value);
-  } */
-
   const handleSubmit = (event:any) => {
-    sendWord({...defWord, word});
+    if (word.length > 0) sendWord({...defWord, word});
+    else alert('You must write a word');
     event.preventDefault();
   }
 
@@ -25,12 +22,12 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
 
   return (
     <div>
-      {defWord.definitions.map(definition => <dd>{definition.definition}</dd>)}
+      {defWord.definitions.map((definition:any) => <dd>{definition.definition}</dd>)}
       <form onSubmit={handleSubmit}>
         <input
           disabled={disabled}
           name='Word Field'
-          type="text"
+          type='text'
           onChange={handleChange}
           value={word}
           placeholder='Write the word'
