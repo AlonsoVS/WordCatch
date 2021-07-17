@@ -1,5 +1,6 @@
-import { FC } from 'react'
+import { FC, useContext } from 'react'
 import Dictionary from './Dictionary';
+import { GameContext } from './Game';
 import GuessView from './GuessView';
 import WordsSelectView from './WordsSelectView';
 
@@ -17,6 +18,7 @@ type Props = {
 }
 
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }) => {
+  const { gameMode } = useContext(GameContext);
   
   const playWords = (words:Array<any>) => {
     onPlayTurn({ ...turn, words }, id);
@@ -40,9 +42,22 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }
     return <h2>Waiting turn...</h2>;
   }
 
+  const getRandomInt = (min:number, max:number) => {
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  const selectWords = (words:any) => {
+    const index = getRandomInt(0, words.length + 1);
+    return [words[index]];
+  }
+
+  const autoSelect = () => {
+    playingTurn && playWords(selectWords(turn.words));
+  }
+
   return (
     <>
-      {getView()}
+      {(gameMode !== 'alone' || id !== 2) && getView() || autoSelect()}
     </>
   )
 }

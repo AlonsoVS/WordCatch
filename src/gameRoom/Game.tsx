@@ -1,4 +1,4 @@
-import React, { cloneElement, createContext, useEffect, useState } from 'react'
+import { createContext, FC, useEffect, useState } from 'react'
 import Player from './Player';
 
 type PlayTurn = {
@@ -8,12 +8,14 @@ type PlayTurn = {
 
 export const GameContext = createContext<any>(null);
 
-const Game = () => {
+const Game:FC = () => {
+  const gameMode = 'alone';
   const players = [1, 2];
+  const defoultFirstPlayer = 1;
 
   const [turnPlayed, setTurnPlayed] = useState<PlayTurn|null>(null);
-  const [catchTurn, setCatchTurn] = useState<number>(1);
-  const [playingTurn, setPlayingTurn]  = useState<number>(1);
+  const [catchTurn, setCatchTurn] = useState<number>(defoultFirstPlayer);
+  const [playingTurn, setPlayingTurn]  = useState<number>(defoultFirstPlayer);
   const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
 
   useEffect(() => {
@@ -78,7 +80,7 @@ const Game = () => {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
-      <GameContext.Provider value={{ intentsCount: intentsCount }}>
+      <GameContext.Provider value={{ intentsCount: intentsCount, gameMode: gameMode }}>
         {players.map(player => 
             <Player 
               onPlayTurn={playTurn}
