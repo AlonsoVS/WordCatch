@@ -14,7 +14,11 @@ type WordDef = {
   meanings:Array<Meaning>
 };
 
-const Dictionary:React.FC = () => {
+type Props = {
+  onSelectedDone:Function
+}
+
+const Dictionary:FC<Props> = ({ onSelectedDone }) => {
 
   const [wordsDef, setWordsDef]  = useState<Array<WordDef>>([]);
 
@@ -44,7 +48,7 @@ const Dictionary:React.FC = () => {
         .then(response => {
           definition = response.data;
         })
-        .catch(error => {console.log("An error has occurred loadig word definition", error)});
+        .catch(error => {console.log("An error has occurred loading word definition", error)});
       return definition;
     }
   }
@@ -122,6 +126,14 @@ const Dictionary:React.FC = () => {
     }
   }
 
+  const handleDone = () => {
+    if (wordsSelected.length > 0) {
+      onSelectedDone(wordsSelected);
+    } else {
+      alert("No words to send");
+    }
+  }
+
   return (
     <div style={{
       height: '65%',
@@ -152,6 +164,9 @@ const Dictionary:React.FC = () => {
         })}
         <button onClick={() => handleShowMoreWords(wordsByLetterShowing)}>
           Show More
+        </button>
+        <button onClick={handleDone}>
+          Done
         </button>
       </div>
     </div>
