@@ -33,7 +33,7 @@ const WordsSelectView:FC<Props> = ({ words, onSelectedDone }) => {
     <div>
       <h2>Select a word</h2>
       {words.map(word => 
-         <WithSelect onSelect={handleWordSelect} >
+         <WithSelect key={word.id} onSelect={handleWordSelect} >
            <DictionaryItem {...word}/>
          </WithSelect>
         )

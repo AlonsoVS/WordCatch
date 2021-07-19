@@ -22,7 +22,7 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
 
   return (
     <div>
-      {defWord.definitions.map((definition:any) => <dd>{definition.definition}</dd>)}
+      {defWord.definitions.map((definition:any, index:number) => <dd key={`${defWord.id}-def-${index}`}>{definition.definition}</dd>)}
       <form onSubmit={handleSubmit}>
         <input
           disabled={disabled}

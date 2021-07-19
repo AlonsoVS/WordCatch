@@ -35,15 +35,15 @@ const DictionaryItem:FC<Props> = ({ word, definitions, partOfSpeech , selected, 
       cursor: 'pointer',
       background: background
     }}
-    key={id}
+    
     >
       <dt>
         {word}
       </dt>
-      <li>
+      <li key={`${id}-partOSpeech`}>
         {partOfSpeech}
       </li>
-      {definitions.map((def, index) => <dd key={index}>{def.definition}</dd>)}
+      {definitions.map((def, index) => <dd key={`${id}-def-${index}`}>{def.definition}</dd>)}
     </div>
   )
 }

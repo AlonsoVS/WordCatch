@@ -146,9 +146,10 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
       <div style={{ overflow: 'auto', height: '90%' }}>
         {wordsDef.map((wordDef, idx:number) => {
           const word = extractDefinition(wordDef);
-          const props = {...word, id:idx};
+          const id = `${showingLetter}-dic-item-${idx}`;
+          const props = {...word, id};
           return (
-            <WithSelect onSelect={handleWordSelect}>
+            <WithSelect key={id} onSelect={handleWordSelect}>
               <DictionaryItem {...props} />
             </WithSelect>
           );

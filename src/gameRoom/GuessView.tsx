@@ -33,7 +33,7 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
     <div>
       <h2>Guess the word!</h2>
       {words.map(word => (
-            <GuessWordItem defWord={word} sendWord={sendIntent} disabled={unableItemForm(word)} />
+            <GuessWordItem key={word.id} defWord={word} sendWord={sendIntent} disabled={unableItemForm(word)} />
           )
         )
       }

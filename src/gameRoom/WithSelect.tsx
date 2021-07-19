@@ -1,4 +1,4 @@
-import { cloneElement, FC, ReactElement, useEffect, useState } from "react";
+import { cloneElement, FC, useEffect, useState } from "react";
 
 type Props = {
   children:any,
@@ -13,7 +13,7 @@ const WithSelect:FC<Props> = ({children, onSelect}) => {
   }, [selected]);
 
   return (
-    <div onClick={handleSelect} key={children.props.id}>
+    <div onClick={handleSelect}>
       {cloneElement(children, {selected:selected})}
     </div>
   )
