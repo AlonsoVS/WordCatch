@@ -19,6 +19,7 @@ type Props = {
 }
 
 const Dictionary:FC<Props> = ({ onSelectedDone }) => {
+  const shouldWordsSelect = 6;
 
   const [wordsDef, setWordsDef]  = useState<Array<WordDef>>([]);
 
@@ -114,9 +115,17 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
     return def;
   }
 
+  const isWordSelected = (word:any) => {
+    return wordsSelected.some(item => item.id === word.id);
+  }
+
   const handleWordSelect = (word:any, selected:boolean) => {
     if (selected) {
-      setWordsSelected(() => new Array<any>(...wordsSelected, word));
+      if (wordsSelected.length < shouldWordsSelect) {
+        setWordsSelected(() => new Array<any>(...wordsSelected, word));
+      } else {
+        alert(`You must select only ${shouldWordsSelect} words!`);
+      }
     } else if (wordsSelected.length > 0) {
         if (wordsSelected.find(element => element.word === word.word)) {
           setWordsSelected(
@@ -127,7 +136,9 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   }
 
   const handleDone = () => {
-    if (wordsSelected.length > 0) {
+    if (wordsSelected.length < shouldWordsSelect) {
+      alert(`You must select ${shouldWordsSelect} words`);
+    } else if (wordsSelected.length > 0) {
       onSelectedDone(wordsSelected);
     } else {
       alert("No words to send");
@@ -145,12 +156,12 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
     }}>
       <div style={{ overflow: 'auto', height: '90%' }}>
         {wordsDef.map((wordDef, idx:number) => {
-          const word = extractDefinition(wordDef);
           const id = `${showingLetter}-dic-item-${idx}`;
-          const props = {...word, id};
+          const word = {...extractDefinition(wordDef), id };
+          const props = {...word, selected: isWordSelected(word) };
           return (
             <WithSelect key={id} onSelect={handleWordSelect}>
-              <DictionaryItem {...props} />
+              <DictionaryItem { ...props } />
             </WithSelect>
           );
         })}

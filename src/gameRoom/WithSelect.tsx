@@ -14,7 +14,7 @@ const WithSelect:FC<Props> = ({children, onSelect}) => {
 
   return (
     <div onClick={handleSelect}>
-      {cloneElement(children, {selected:selected})}
+      {cloneElement(children)}
     </div>
   )
 }

@@ -19,6 +19,7 @@ type Props = {
 
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }) => {
   const { gameMode } = useContext(GameContext);
+  const wordsToBeSelected = 2;
   
   const playWords = (words:Array<any>) => {
     onPlayTurn({ ...turn, words }, id);
@@ -34,7 +35,10 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }
         case 'catch':
           return <Dictionary onSelectedDone={playWords} />;
         case 'select':
-          return <WordsSelectView words={turn.words} onSelectedDone={playWords} />;
+          return <WordsSelectView 
+                    words={turn.words} 
+                    onSelectedDone={playWords} 
+                    shouldWordsSelect={wordsToBeSelected} />;
         case 'guess':
           return <GuessView onSendIntents={handleIntent} words={turn.words} />
       }
