@@ -17,9 +17,19 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
     setWordsIntents(() => [...wordsIntents, word]);
   }
 
-  const unableItemForm = (word:any) => {
+  const isFirsAttemp = (word:any) => {
     const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-    return wordCount.intents === 3 || wordCount.right;
+    return wordCount.intents === 0;
+  }
+
+  const allAttemptsUsed = (word:any, maxAttemps:number):boolean => {
+    const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
+    return wordCount.intents === maxAttemps;
+  }
+
+  const isGuessedWord = (word:any):boolean => {
+    const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
+    return wordCount.right;
   }
 
   useEffect(() => {
@@ -32,9 +42,23 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
   return (
     <div>
       <h2>Guess the word!</h2>
-      {words.map(word => (
-            <GuessWordItem key={word.id} defWord={word} sendWord={sendIntent} disabled={unableItemForm(word)} />
-          )
+      {words.map(word => {
+            const isGuessed = isGuessedWord(word);
+            const hasUsedAllAttempts = allAttemptsUsed(word, 3);
+            return (
+              <>
+                <GuessWordItem 
+                  key={word.id} 
+                  defWord={word} 
+                  sendWord={sendIntent} 
+                  disabled={isGuessed || hasUsedAllAttempts} 
+                />
+                { isGuessed && <span key={`${word.id}-guessed-message`} > Word Guessed! 🥳 </span>
+                  || hasUsedAllAttempts &&<span>Game Over. Maybe this is not for you 🤪 </span>
+                  || !isFirsAttemp(word) && <span>Not this time. Please try again! 😓 </span> }
+              </>
+            )
+          }
         )
       }
     </div>
