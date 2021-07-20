@@ -19,7 +19,7 @@ type Props = {
 
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }) => {
   const { gameMode } = useContext(GameContext);
-  const wordsToBeSelected = 2;
+  const wordsToBeSelected = 3;
   
   const playWords = (words:Array<any>) => {
     onPlayTurn({ ...turn, words }, id);
@@ -51,8 +51,14 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }
   }
 
   const selectWords = (words:any) => {
-    const index = getRandomInt(0, words.length + 1);
-    return [words[index]];
+    let index:Array<number> = [];
+    while (index.length < wordsToBeSelected) {
+      const idx:number = getRandomInt(0, words.length);
+      if (index.indexOf(idx) === -1) {
+        index.push(idx);
+      }
+    }
+    return index.map(i => words[i]);
   }
 
   const autoSelect = () => {

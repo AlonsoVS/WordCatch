@@ -9,7 +9,7 @@ type PlayTurn = {
 export const GameContext = createContext<any>(null);
 
 const Game:FC = () => {
-  const gameMode = 'not-alone';
+  const gameMode = 'alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
 
