@@ -107,6 +107,10 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
 
   const [showingLetter, setShowingLetter] = useState<string>('a');
 
+  useEffect(() => {
+    setWordsSelected(() => []);
+  }, [showingLetter])
+
   const [letterButtons, setLetterButtons] = useState<Array<string>>([]);
 
   const [wordsByLetterShowing, setWordsByLetterShowing] = useState<Array<string>>([]);
