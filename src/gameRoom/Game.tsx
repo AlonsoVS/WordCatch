@@ -1,10 +1,21 @@
 import { createContext, FC, useEffect, useState } from 'react'
+import styled from 'styled-components';
 import Player from './Player';
 
 type PlayTurn = {
   mode:string,
   words:Array<any>
 }
+
+const GameContainer = styled.div`
+    background: #003459;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center
+`
 
 export const GameContext = createContext<any>(null);
 
@@ -72,14 +83,7 @@ const Game:FC = () => {
   }
 
   return (
-    <div style={{
-      height: '100vh',
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
+    <GameContainer>
       <GameContext.Provider value={{ intentsCount: intentsCount, gameMode: gameMode }}>
         {players.map(player => 
             <Player 
@@ -92,7 +96,7 @@ const Game:FC = () => {
           )
         }
       </GameContext.Provider>
-    </div>
+    </GameContainer>
   );
 }
 

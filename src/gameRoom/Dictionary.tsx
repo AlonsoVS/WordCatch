@@ -1,5 +1,7 @@
 import axios from 'axios';
 import React, { FC, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import Button from '../utils/Button';
 import DictionaryItem from './DictionaryItem';
 import WithSelect from './WithSelect';
 
@@ -17,6 +19,86 @@ type WordDef = {
 type Props = {
   onSelectedDone:Function
 }
+
+const DictionaryContainer = styled.div`
+  height: 70%;
+  width: 60%;
+  background: white;
+  border-radius: 22px;
+  padding: 1.5rem;
+  overflow: hidden
+`
+const WordsContainer = styled.div`
+  overflow: auto;
+  height: 85%;
+  border-radius: 22px;
+  ::-webkit-scrollbar-track{
+    background: #f6a03c;
+    border-radius: 100px;
+  };
+  ::-webkit-scrollbar-thumb {
+    background: #003459;
+    border-radius: 100px;
+    width: 8px;
+    background-clip: content-box;
+    border: 2px solid transparent;
+  };
+  ::-webkit-scrollbar {
+    width: 8px;
+    /* background: #f6a03c; */
+    /* border-radius: 20px; */
+  };
+`
+const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 15%;
+  padding: 0.4rem;
+  overflow: hidden;
+`
+
+const DicButton = styled(Button)`
+  background: ${props => props.selected?'#ffa13d':'#007ea7'};
+  color: white;
+  font-size: small;
+  font-weight: bold;
+  margin: 0.1rem;
+  padding: 0.6rem;
+  width: 32px;
+  height: fit-content;
+  &:hover {
+    background: #ffa13d;
+  }
+`
+const ActionButton = styled(DicButton)`
+  display: flex;
+  justify-content: center;
+  padding: 0.4rem 1rem;
+  min-width: 50px;
+  max-width: 60px;
+  width: min-content;
+  &:focus {
+    none
+  }
+`
+
+const ActionButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 10%
+`
+
+const LetterButtonsContainer = styled.div`
+  display: block;
+  overflow: auto
+`
+
+const ShowingLetterTitle = styled.span`
+  color: white;
+  font-size: xxx-large;
+  margin: 1rem;
+  text-transform: uppercase;
+`
 
 const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   const shouldWordsSelect = 6;
@@ -146,42 +228,46 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   }
 
   return (
-    <div style={{
-      height: '65%',
-      width: '60%',
-      background: '#03a9f4',
-      borderRadius: '12px',
-      padding: '1rem',
-      overflow: 'hidden'
-    }}>
-      <div style={{ overflow: 'auto', height: '90%' }}>
-        {wordsDef.map((wordDef, idx:number) => {
-          const id = `${showingLetter}-dic-item-${idx}`;
-          const word = {...extractDefinition(wordDef), id };
-          const props = {...word, selected: isWordSelected(word) };
-          return (
-            <WithSelect key={id} onSelect={handleWordSelect}>
-              <DictionaryItem { ...props } />
-            </WithSelect>
-          );
-        })}
-      </div>
-      <div style={{ margin: '1rem' }}>
-        {letterButtons.map((letter, idx) => {
-          return (
-            <button key={idx} onClick={()=>changeLetterShowing(letter)}>
-              {letter}
-            </button>
-          )
-        })}
-        <button onClick={() => handleShowMoreWords(wordsByLetterShowing)}>
-          Show More
-        </button>
-        <button onClick={handleDone}>
-          Done
-        </button>
-      </div>
-    </div>
+    <>
+      <ShowingLetterTitle>{showingLetter}</ShowingLetterTitle>
+      <DictionaryContainer>
+        <WordsContainer>
+          {wordsDef.map((wordDef, idx:number) => {
+            const id = `${showingLetter}-dic-item-${idx}`;
+            const word = {...extractDefinition(wordDef), id };
+            const props = {...word, selected: isWordSelected(word) };
+            return (
+              <WithSelect key={id} onSelect={handleWordSelect}>
+                <DictionaryItem { ...props } />
+              </WithSelect>
+            );
+          })}
+        </WordsContainer>
+        <ButtonsContainer>
+          <LetterButtonsContainer>
+            {letterButtons.map((letter, idx) => {
+              return (
+                <DicButton
+                  key={idx} 
+                  selected={letter === showingLetter} 
+                  onClick={()=>changeLetterShowing(letter)}
+                >
+                  {letter}
+                </DicButton>
+              )
+            })}
+          </LetterButtonsContainer>
+          <ActionButtonsContainer>
+            <ActionButton onClick={() => handleShowMoreWords(wordsByLetterShowing)}>
+              Show More
+            </ActionButton>
+            <ActionButton onClick={handleDone}>
+              Done
+            </ActionButton>
+          </ActionButtonsContainer>
+        </ButtonsContainer>
+      </DictionaryContainer>
+    </>
   );
 }
 
