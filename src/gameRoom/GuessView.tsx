@@ -33,6 +33,20 @@ const WordsContainer = styled.div`
   max-height: 580px;
   overflow: auto;
   width: 100%;
+  ::-webkit-scrollbar-track{
+    background: #f6a03c;
+    border-radius: 100px;
+  };
+  ::-webkit-scrollbar-thumb {
+    background: #003459;
+    border-radius: 100px;
+    width: 8px;
+    background-clip: content-box;
+    border: 2px solid transparent;
+  };
+  ::-webkit-scrollbar {
+    width: 8px;
+  };
 `
 
 const AttempMessage = styled.span`

@@ -45,8 +45,6 @@ const WordsContainer = styled.div`
   };
   ::-webkit-scrollbar {
     width: 8px;
-    /* background: #f6a03c; */
-    /* border-radius: 20px; */
   };
 `
 const ButtonsContainer = styled.div`
