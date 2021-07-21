@@ -13,7 +13,7 @@ const PlayGameButton = styled(Button)`
     font-weight: bold;
     &:hover {
       color: white;
-      background: #70BFFF;
+      background: #ffa13d;
       border: none
     }
 `
