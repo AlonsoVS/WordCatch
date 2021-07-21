@@ -26,7 +26,12 @@ const DictionaryItemContainer = styled.div`
   flex-direction: column;
   font-size: large;
   margin: 1rem;
-  padding: 2rem
+  padding: 2rem;
+  &:hover {
+    background: #f9bc48a8;
+    border-color: #f9bc48a8;
+    color: #003459
+  }
 `
 
 const WordContainer = styled.span`

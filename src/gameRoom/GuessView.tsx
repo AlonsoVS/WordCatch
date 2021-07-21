@@ -30,7 +30,7 @@ const WordsContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: fit-content;
-  max-height: 630px;
+  max-height: 580px;
   overflow: auto;
   width: 100%;
 `
