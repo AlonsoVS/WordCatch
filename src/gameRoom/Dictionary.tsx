@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { FC, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import Button from '../utils/Button';
+import { useTheme } from 'styled-components';
 import DictionaryItem from './DictionaryItem';
 import WithSelect from './WithSelect';
+import { ActionButton, ActionButtonsContainer, ButtonsContainer, DicButton, DictionaryContainer, 
+        LetterButtonsContainer, ShowingLetterTitle, WordsContainer } from './gameRoomUtils/DictionaryUtils';
 
 type Meaning = {
   partOfSpeech:string,
@@ -20,89 +21,11 @@ type Props = {
   onSelectedDone:Function
 }
 
-const DictionaryContainer = styled.div`
-  height: 70%;
-  width: 60%;
-  background: white;
-  border-radius: 22px;
-  padding: 1.5rem;
-  overflow: hidden
-`
-const WordsContainer = styled.div`
-  overflow: auto;
-  height: 85%;
-  border-radius: 22px;
-  ::-webkit-scrollbar-track{
-    background: #f6a03c;
-    border-radius: 100px;
-  };
-  ::-webkit-scrollbar-thumb {
-    background: #003459;
-    border-radius: 100px;
-    width: 8px;
-    background-clip: content-box;
-    border: 2px solid transparent;
-  };
-  ::-webkit-scrollbar {
-    width: 8px;
-  };
-`
-const ButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  height: 15%;
-  padding: 0.4rem;
-  overflow: hidden;
-`
-
-const DicButton = styled(Button)`
-  background: ${props => props.selected?'#ffa13d':'#007ea7'};
-  color: white;
-  font-size: small;
-  font-weight: bold;
-  margin: 0.1rem;
-  padding: 0.6rem;
-  width: 32px;
-  height: fit-content;
-  &:hover {
-    background: #ffa13d;
-  }
-`
-const ActionButton = styled(DicButton)`
-  display: flex;
-  justify-content: center;
-  padding: 0.4rem 1rem;
-  min-width: 50px;
-  max-width: 60px;
-  width: min-content;
-  &:focus {
-    none
-  }
-`
-
-const ActionButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 10%
-`
-
-const LetterButtonsContainer = styled.div`
-  display: block;
-  overflow: auto
-`
-
-const ShowingLetterTitle = styled.span`
-  color: white;
-  font-size: xxx-large;
-  margin: 1rem;
-  text-transform: uppercase;
-`
-
 const Dictionary:FC<Props> = ({ onSelectedDone }) => {
-  const shouldWordsSelect = 6;
+  const appTheme = useTheme();
+  const shouldWordsSelect = 4;
 
   const [wordsDef, setWordsDef]  = useState<Array<WordDef>>([]);
-
   const [showingLetter, setShowingLetter] = useState<string>('a');
 
   useEffect(() => {
@@ -110,9 +33,7 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   }, [showingLetter])
 
   const [letterButtons, setLetterButtons] = useState<Array<string>>([]);
-
   const [wordsByLetterShowing, setWordsByLetterShowing] = useState<Array<string>>([]);
-
   const [wordsSelected, setWordsSelected] = useState<Array<any>>([]);
 
   const REQUEST_URL:string = 'https://api.dictionaryapi.dev/api/v2/entries/es/';
@@ -139,12 +60,9 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   }
 
   const getWordsWithDef = (words:Array<string>) => async (maxWords:number, startIndex:number) => {
-
     const max:number = maxWords;
-
     let startIdx = startIndex;
     let endIdx = startIndex + max;
-
     let defs:Array<WordDef> = [];
 
     const definitionES:Function = getDefinition(REQUEST_URL);
@@ -181,7 +99,6 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
       (letterButtons.length === 0) && setLetterButtons(() => Object.keys(words));
 
       const wordsByLetterStart:Array<string> = getByLetterStart(words)(showingLetter);
-
       const definitions:Promise<Array<WordDef>> = getWordsWithDef(wordsByLetterStart)(10, 0);
       definitions.then(defsToShow => {
         setWordsDef(() => defsToShow);
@@ -231,9 +148,9 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
 
   return (
     <>
-      <ShowingLetterTitle>{showingLetter}</ShowingLetterTitle>
-      <DictionaryContainer>
-        <WordsContainer>
+      <ShowingLetterTitle theme={appTheme}>{showingLetter}</ShowingLetterTitle>
+      <DictionaryContainer theme={appTheme}>
+        <WordsContainer theme={appTheme}>
           {wordsDef.map((wordDef, idx:number) => {
             const id = `${showingLetter}-dic-item-${idx}`;
             const word = {...extractDefinition(wordDef), id };
@@ -250,6 +167,7 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
             {letterButtons.map((letter, idx) => {
               return (
                 <DicButton
+                  theme={appTheme}
                   key={idx} 
                   selected={letter === showingLetter} 
                   onClick={()=>changeLetterShowing(letter)}

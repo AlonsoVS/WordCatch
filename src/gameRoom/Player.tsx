@@ -19,7 +19,7 @@ type Props = {
 
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver }) => {
   const { gameMode } = useContext(GameContext);
-  const wordsToBeSelected = 3;
+  const wordsToBeSelected = 1;
   
   const playWords = (words:Array<any>) => {
     onPlayTurn({ ...turn, words }, id);

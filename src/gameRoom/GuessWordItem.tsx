@@ -1,5 +1,7 @@
-import { FC, useState } from 'react'
-import styled from 'styled-components';
+import React, { FC, useState } from 'react';
+import { useTheme } from 'styled-components';
+import { ButtonInput, DefinitionContainer, DefinitionMarker, 
+          PartOfSpeech, WordContainer, WordForm } from './gameRoomUtils/GuessViewUtils';
 
 type Props = {
   defWord:any,
@@ -7,75 +9,8 @@ type Props = {
   disabled:boolean
 }
 
-const WordContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: fit-content;
-  margin: 0.8rem 0;
-  padding: 0 1rem;
-  width: 100%;
-`
-
-const PartOfSpeech = styled.span`
-  align-self: center;
-  background: #ffa13d;
-  border-radius: 10px;
-  height: fit-content;
-  color: white;
-  font-size: xx-small;
-  letter-spacing: 0.02rem;
-  margin: 0.5rem;
-  padding: 0.4rem;
-  text-transform: uppercase;
-  width: fit-content;
-`
-
-const DefinitionContainer = styled.div`
-  margin: 0.5rem 0;
-  display: flex;
-  flex-direction: row;
-`
-
-const DefinitionMarker = styled.span`
-  align-items: flex-start;
-  color: black;
-  display: flex;
-  font-size: x-small;
-  font-weight: bold;
-  margin: 0.3rem 0.8rem;
-`
-
-const WordForm = styled.form`
-  display: flex;
-  flex-direction: row;
-  height: fit-content;
-  margin: 0.5rem;
-  input {
-    border: 1px solid;
-    border-radius: 10px;
-    height: 40px;
-    margin: 0.4rem 0.4rem 0;
-    padding: 0.5rem;
-    width: 100%;
-    &:focus, &:hover {
-      border: 1px solid #ffa13d;
-      border-radius: 10px;
-      outline: none;
-    };
-  };
-`
-
-const ButtonInput = styled.input`
-  background: #007ea7;
-  color: white;
-  cursor: pointer;
-  width: 10% !important;
-  &:focus, &:hover {
-    background: #ffa13d
-  }
-`
-
 const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
+  const appTheme = useTheme();
   const [word, setWord] = useState<string>('');
 
   const handleSubmit = (event:any) => {
@@ -91,13 +26,13 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
 
   return (
     <WordContainer>
-      <PartOfSpeech>{defWord.partOfSpeech}</PartOfSpeech>
+      <PartOfSpeech theme={appTheme}>{defWord.partOfSpeech}</PartOfSpeech>
       {defWord.definitions.map((definition:any, index:number) => 
         <DefinitionContainer key={`${defWord.id}-def-${index}`}>
-          <DefinitionMarker>Def.</DefinitionMarker>
+          <DefinitionMarker theme={appTheme}>Def.</DefinitionMarker>
           {definition.definition}
         </DefinitionContainer>)}
-      <WordForm onSubmit={handleSubmit}>
+      <WordForm theme={appTheme} onSubmit={handleSubmit}>
         <input
           disabled={disabled}
           name='Word Field'
@@ -112,4 +47,4 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
   )
 }
 
-export default GuessWordItem
+export default GuessWordItem;

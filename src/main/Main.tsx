@@ -1,56 +1,14 @@
-import { NextRouter, useRouter } from 'next/dist/client/router'
-import React from 'react'
-import styled from 'styled-components';
-import Button from '../utils/Button';
-
-const PlayGameButton = styled(Button)`
-    background: white;
-    border: solid 2px;
-    border-color: #363636;
-    color: #363636;
-    width: 200px;
-    font-size: medium;
-    font-weight: bold;
-    &:hover {
-      color: white;
-      background: #ffa13d;
-      border: none
-    }
-`
-
-const MainContainer = styled.div`
-    background: #003459;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%
-`
-
-const MainCard = styled.div`
-    background: white;
-    border: solid 1px;
-    border-color: #363636;
-    border-radius: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    height: fit-content;
-    width: fit-content;
-`
-
-const MainTitle = styled.a`
-    color: white;
-    font-size: xx-large;
-    font-weight: bold;
-    margin: 0rem 0rem 1rem;
-`
+import { NextRouter, useRouter } from 'next/dist/client/router';
+import React, { useEffect } from 'react'
+import { useTheme } from 'styled-components';
+import { MainContainer } from './MainContainer';
+import { PlayGameButton } from './PlayGameButton';
+import { MainCard } from './MainCard';
+import { MainTitle } from './MainTitle';
 
 const Main: React.FC = () => {
   const router:NextRouter = useRouter();
+  const appTheme = useTheme();
 
   const playGame = ():void => {
     router.push(
@@ -64,15 +22,15 @@ const Main: React.FC = () => {
   }
 
   return (
-    <MainContainer>
-      <MainTitle>Word Catch</MainTitle>
-      <MainCard>
-        <PlayGameButton onClick={playGame}>
+    <MainContainer theme={appTheme}>
+      <MainTitle theme={appTheme}>Word Catch</MainTitle>
+      <MainCard theme={appTheme}>
+        <PlayGameButton theme={appTheme} onClick={playGame}>
           Play Game
         </PlayGameButton>
       </MainCard>
     </MainContainer>
-  )
+  );
 }
 
-export default Main
+export default Main;

@@ -1,6 +1,8 @@
-import { FC, useContext, useEffect, useState } from 'react'
-import styled from 'styled-components';
+import React, { FC, useContext, useEffect, useState } from 'react'
+import { useTheme } from 'styled-components';
 import { GameContext } from './Game';
+import { AttempMessage, GuessTitle, 
+        GuessViewContainer, WordsContainer } from './gameRoomUtils/GuessViewUtils';
 import GuessWordItem from './GuessWordItem';
 
 type Props = {
@@ -8,55 +10,10 @@ type Props = {
   words:Array<any>
 }
 
-const GuessTitle = styled.a`
-  color: white;
-  font-size: xxx-large;
-  font-weight: 500;
-  margin: 1rem;
-  text-transform: capitalize;
-`
-
-const GuessViewContainer = styled.div`
-  background: white;
-  border-radius: 22px;
-  max-height: 630px;
-  overflow: hidden;
-  padding: 1.5rem;
-  height: fit-content;
-  width: 60%;
-`
-
-const WordsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: fit-content;
-  max-height: 580px;
-  overflow: auto;
-  width: 100%;
-  ::-webkit-scrollbar-track{
-    background: #f6a03c;
-    border-radius: 100px;
-  };
-  ::-webkit-scrollbar-thumb {
-    background: #003459;
-    border-radius: 100px;
-    width: 8px;
-    background-clip: content-box;
-    border: 2px solid transparent;
-  };
-  ::-webkit-scrollbar {
-    width: 8px;
-  };
-`
-
-const AttempMessage = styled.span`
-  margin: 0 0 0.6rem 0;
-  text-align: center;
-`
-
 const GuessView:FC<Props> = ({ onSendIntents, words }) => {
 
   const { intentsCount }:any = useContext(GameContext);
+  const appTheme = useTheme();
 
   const [wordsIntents, setWordsIntents] = useState<Array<any>>([]);
   
@@ -88,9 +45,9 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
 
   return (
     <>
-      <GuessTitle>Guess the word!</GuessTitle>
-      <GuessViewContainer>
-        <WordsContainer>
+      <GuessTitle theme={appTheme}>Guess the word!</GuessTitle>
+      <GuessViewContainer theme={appTheme}>
+        <WordsContainer theme={appTheme}>
           {words.map(word => {
                 const isGuessed = isGuessedWord(word);
                 const hasUsedAllAttempts = allAttemptsUsed(word, 3);
