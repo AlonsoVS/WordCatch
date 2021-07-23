@@ -78,7 +78,8 @@ const Game:FC = () => {
     <GameContainer theme={appTheme}>
       <GameContext.Provider value={{ intentsCount: intentsCount, gameMode: gameMode }}>
         {players.map(player => 
-            <Player 
+            <Player
+              key={player} 
               onPlayTurn={playTurn}
               playingTurn={player === playingTurn}
               id={player}

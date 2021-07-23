@@ -6,10 +6,11 @@ import { ButtonInput, DefinitionContainer, DefinitionMarker,
 type Props = {
   defWord:any,
   sendWord:Function,
-  disabled:boolean
+  disabled:boolean,
+  wordIndex:number
 }
 
-const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
+const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled, wordIndex }) => {
   const appTheme = useTheme();
   const [word, setWord] = useState<string>('');
 
@@ -26,13 +27,18 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
 
   return (
     <WordContainer>
-      <PartOfSpeech theme={appTheme}>{defWord.partOfSpeech}</PartOfSpeech>
+      <PartOfSpeech 
+        key={`${defWord.id}-part-of-speech-${wordIndex}`} 
+        theme={appTheme}
+      >
+        {defWord.partOfSpeech}
+      </PartOfSpeech>
       {defWord.definitions.map((definition:any, index:number) => 
         <DefinitionContainer key={`${defWord.id}-def-${index}`}>
           <DefinitionMarker theme={appTheme}>Def.</DefinitionMarker>
           {definition.definition}
         </DefinitionContainer>)}
-      <WordForm theme={appTheme} onSubmit={handleSubmit}>
+      <WordForm key={`${defWord.id}-form-${wordIndex}`} theme={appTheme} onSubmit={handleSubmit}>
         <input
           disabled={disabled}
           name='Word Field'
@@ -41,7 +47,7 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled }) => {
           value={word}
           placeholder='Write the word'
         />
-        <ButtonInput type='submit' value='Done' disabled={disabled}/>
+        {/* <ButtonInput type='submit' value='Done' disabled={disabled}/> */}
       </WordForm>
     </WordContainer>
   )

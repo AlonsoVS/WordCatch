@@ -111,7 +111,6 @@ export const LetterButtonsContainer = styled.div`
   display: grid;
   justify-content: center;
   justify-items: center;
-  /* overflow: auto; */
   width: 100%;
   gap: 0.1rem;
   grid-auto-columns: 32px;

@@ -45,16 +45,17 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
 
   return (
     <>
-      <GuessTitle theme={appTheme}>Guess the word!</GuessTitle>
-      <GuessViewContainer theme={appTheme}>
-        <WordsContainer theme={appTheme}>
-          {words.map(word => {
+      <GuessTitle key='guess-view-title' theme={appTheme}>Guess the word!</GuessTitle>
+      <GuessViewContainer key='guess-view-container' theme={appTheme}>
+        <WordsContainer key='guess-words-container' theme={appTheme}>
+          {words.map((word, index:number) => {
                 const isGuessed = isGuessedWord(word);
                 const hasUsedAllAttempts = allAttemptsUsed(word, 3);
                 return (
                   <>
                     <GuessWordItem 
                       key={word.id} 
+                      wordIndex={index}
                       defWord={word} 
                       sendWord={sendIntent} 
                       disabled={isGuessed || hasUsedAllAttempts} 
@@ -62,9 +63,9 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
                     { isGuessed 
                       && <AttempMessage key={`${word.id}-guessed-message`} > Word Guessed! 🥳 </AttempMessage>
                       || hasUsedAllAttempts 
-                      && <AttempMessage>Game Over. Maybe this is not for you 🤪 </AttempMessage>
+                      && <AttempMessage key={`${word.id}-guessed-message`}>Game Over. Maybe this is not for you 🤪 </AttempMessage>
                       || !isFirsAttemp(word) 
-                      && <AttempMessage>Not this time. Please try again! 😓 </AttempMessage> }
+                      && <AttempMessage key={`${word.id}-guessed-message`}>Not this time. Please try again! 😓 </AttempMessage> }
                   </>
                 )
               }
