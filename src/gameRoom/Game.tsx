@@ -2,6 +2,7 @@ import { createContext, FC, useEffect, useState } from 'react'
 import Player from './Player';
 import { GameContainer } from './gameRoomUtils/GameUtils';
 import { useTheme } from 'styled-components';
+import PointsCounterView from './PointsCounterView';
 
 type PlayTurn = {
   mode:string,
@@ -20,6 +21,7 @@ const Game:FC = () => {
   const [catchTurn, setCatchTurn] = useState<number>(defoultFirstPlayer);
   const [playingTurn, setPlayingTurn]  = useState<number>(defoultFirstPlayer);
   const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
+  const [playerPoints, setPLayerPoints] = useState<number>(0);
 
   useEffect(() => {
     turnPlayed && turnPlayed?.words.length > 0 && setIntentsCount(() => 
@@ -60,23 +62,48 @@ const Game:FC = () => {
     }
   }
 
+  const addPlayerPoints = (attempts:number) => {
+    if (attempts === 1) {
+      setPLayerPoints(() => playerPoints + 2);
+    } else {
+      setPLayerPoints(() => playerPoints + 1);
+    }
+  }
+
   const checkIntents = (words:Array<any>) => {
     words.forEach(intent => {
       const wordToGuess = turnPlayed?.words.find(word => word.id === intent.id);
       const rightAnswer = wordToGuess?.word === intent.word;
 
+      const wordAttempsCount = intentsCount.find(word => word.wordId === intent.id);
+      const totalAttempsCount = intentsCount.filter(word => word.wordId !== intent.id);
+      const attemptsUpdated = wordAttempsCount.intents + 1;
       setIntentsCount(() => {
-        const wordIntentsCount = intentsCount.find(word => word.wordId === intent.id);
-        const newCount = intentsCount.filter(word => word.wordId !== intent.id);
-        return [ ...newCount, 
-                { wordId: intent.id, intents:  wordIntentsCount.intents + 1, right: rightAnswer } ];
+        return [ ...totalAttempsCount, 
+                { wordId: intent.id, intents:  attemptsUpdated, right: rightAnswer } ];
       });
+
+      if (rightAnswer) {
+        addPlayerPoints(attemptsUpdated);
+      }
     });
   }
 
+  useEffect(() => {
+    let points:number = 0;
+    intentsCount.forEach(intent => {
+      if (intent.right) points += 1;
+    });
+    setPLayerPoints(() => points);
+  }, [intentsCount]);
+
   return (
     <GameContainer theme={appTheme}>
-      <GameContext.Provider value={{ intentsCount: intentsCount, gameMode: gameMode }}>
+      <GameContext.Provider value={{ 
+        intentsCount: intentsCount, 
+        gameMode: gameMode
+      }}>
+        <PointsCounterView points={playerPoints} />
         {players.map(player => 
             <Player
               key={player} 
@@ -93,4 +120,4 @@ const Game:FC = () => {
   );
 }
 
-export default Game
+export default Game;
