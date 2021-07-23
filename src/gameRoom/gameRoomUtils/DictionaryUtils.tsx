@@ -2,8 +2,11 @@ import styled from "styled-components";
 import Button from "../../utils/Button";
 
 export const DictionaryContainer = styled.div`
+  align-items: center;
   background: ${props => props.theme.primaryCard};
   border-radius: 22px;
+  display: flex;
+  flex-direction: column;
   height: 80%;
   max-width: 1080px;
   min-height: 224px;
@@ -122,6 +125,7 @@ export const LetterButtonsContainer = styled.div`
 export const ShowingLetterTitle = styled.span`
   color: ${props => props.theme.primaryText};
   font-size: xx-large;
+  font-weight: 500;
   margin: 1vh;
   text-transform: uppercase;
 `

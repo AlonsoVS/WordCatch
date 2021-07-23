@@ -59,10 +59,10 @@ const WordsSelectView:FC<Props> = ({ words, onSelectedDone, shouldWordsSelect })
               )
             }
           </WordsContainer>
+          <DoneButton onClick={handleDone}>
+            Done
+          </DoneButton>
         </SelectViewContainer>
-      <DoneButton onClick={handleDone}>
-        Done
-      </DoneButton>
     </>
   )
 }
