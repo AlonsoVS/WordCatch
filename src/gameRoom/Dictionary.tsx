@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components';
 import DictionaryItem from './DictionaryItem';
 import WithSelect from './WithSelect';
 import { ActionButton, ActionButtonsContainer, ButtonsContainer, DicButton, DictionaryContainer, 
-        LetterButtonsContainer, ShowingLetterTitle, WordsContainer } from './gameRoomUtils/DictionaryUtils';
+        LetterButtonsContainer, LetterButtonsWrapper, ShowingLetterTitle, WordsContainer } from './gameRoomUtils/DictionaryUtils';
 
 type Meaning = {
   partOfSpeech:string,
@@ -163,23 +163,25 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
           })}
         </WordsContainer>
         <ButtonsContainer>
-          <LetterButtonsContainer>
-            {letterButtons.map((letter, idx) => {
-              return (
-                <DicButton
-                  theme={appTheme}
-                  key={idx} 
-                  selected={letter === showingLetter} 
-                  onClick={()=>changeLetterShowing(letter)}
-                >
-                  {letter}
-                </DicButton>
-              )
-            })}
-          </LetterButtonsContainer>
+          <LetterButtonsWrapper>
+            <LetterButtonsContainer>
+              {letterButtons.map((letter, idx) => {
+                return (
+                  <DicButton
+                    theme={appTheme}
+                    key={idx} 
+                    selected={letter === showingLetter} 
+                    onClick={()=>changeLetterShowing(letter)}
+                  >
+                    {letter}
+                  </DicButton>
+                )
+              })}
+            </LetterButtonsContainer>
+          </LetterButtonsWrapper>
           <ActionButtonsContainer>
             <ActionButton onClick={() => handleShowMoreWords(wordsByLetterShowing)}>
-              Show More
+              More
             </ActionButton>
             <ActionButton onClick={handleDone}>
               Done

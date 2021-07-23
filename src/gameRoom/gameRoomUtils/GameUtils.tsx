@@ -1,11 +1,13 @@
 import styled from "styled-components";
 
 export const GameContainer = styled.div`
+  align-items: center;
   background: ${props => props.theme.primary};
-  height: 100vh;
-  width: 100%;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
+  height: 100vh;
   justify-content: center;
-  align-items: center
+  overflow: auto;
+  width: 100%;
 `
