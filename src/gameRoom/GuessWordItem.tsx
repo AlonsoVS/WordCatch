@@ -47,7 +47,7 @@ const GuessWordItem:FC<Props> = ({ defWord, sendWord, disabled, wordIndex }) => 
           value={word}
           placeholder='Write the word'
         />
-        {/* <ButtonInput type='submit' value='Done' disabled={disabled}/> */}
+        <ButtonInput type='submit' value='Done' disabled={disabled}/>
       </WordForm>
     </WordContainer>
   )
