@@ -1,12 +1,9 @@
-import { FC, useContext, useEffect, useState } from 'react'
-import styled, { useTheme } from 'styled-components';
-import { MainCard } from '../main/MainCard';
-import { PlayGameButton } from '../main/PlayGameButton';
+import { FC, useContext, useEffect, useState } from 'react';
 import Dictionary from './Dictionary';
 import { GameContext } from './Game';
 import GuessView from './GuessView';
-import PointsCounterView from './PointsCounterView';
 import WordsSelectView from './WordsSelectView';
+import { GuessEndModal, GuessEndModalCard, PointsCounter, ModalButton } from './gameRoomUtils/PlayerUtils';
 
 type PlayTurn = {
   mode:string,
@@ -21,44 +18,6 @@ type Props = {
   intentsReceiver:Function,
   guessEnd:boolean
 }
-
-const GuessEndModal = styled.div`
-  align-items: center;
-  background: #191919de;
-  z-index: 10;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-content: center;
-  justify-content: center;
-`
-
-const GuessEndModalCard = styled(MainCard)`
-  max-width: 280px;
-  min-height: 186px;
-  padding: 1rem;
-`
-
-const ModalButton = styled(PlayGameButton)`
-  background: ${props => props.theme.primaryLight};
-  color: ${props => props.theme.primaryText};
-  margin: 0.2rem;
-  padding: 0.4rem;
-`
-
-const PointsCounter = styled.a`
-  color: ${props => props.theme.secondary};
-  height: fit-content;
-  font-size: xx-large;
-  margin: 1rem 0;
-  text-align: center;
-  width: 100%;
-  @media (min-height: 328px) {
-    font-size: xx-large;
-    max-width: 800px;
-  }
-`
 
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, guessEnd }) => {
   const { gameMode, playerPoints, finishGame } = useContext(GameContext);
@@ -151,4 +110,4 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
   )
 }
 
-export default Player
+export default Player;
