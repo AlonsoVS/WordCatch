@@ -4,6 +4,7 @@ import { GameContainer } from './gameRoomUtils/GameUtils';
 import { useTheme } from 'styled-components';
 import PointsCounterView from './PointsCounterView';
 import { useRouter } from 'next/dist/client/router';
+import GameOptionsMenu from './GameOptionsMenu';
 
 type PlayTurn = {
   mode:string,
@@ -12,19 +13,27 @@ type PlayTurn = {
 
 export const GameContext = createContext<any>(null);
 
+type Props = {
+  showOptionsMenu:boolean
+}
+
 const Game:FC = () => {
   const router = useRouter();
   const appTheme = useTheme();
-  const gameMode = 'not alone';
+  const gameMode = 'alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
-  const maxAttempts = 3;
-
+  
+  const [wordsSelectLimit, setWordsSelectLimit] = useState<number>(6)
+  const [maxAttempts, setMaxAttempts] = useState<number>(3);
+  const [wordsToCatch, setWordsToCatch] = useState<number>(1);
   const [turnPlayed, setTurnPlayed] = useState<PlayTurn|null>(null);
   const [catchTurn, setCatchTurn] = useState<number>(defoultFirstPlayer);
   const [playingTurn, setPlayingTurn]  = useState<number>(defoultFirstPlayer);
   const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
   const [playerPoints, setPlayerPoints] = useState<number>(0);
+
+  const [showingGameOptionsMenu, showGameOptionsMenu] = useState<boolean>(true);
 
   useEffect(() => {
     if (turnPlayed && turnPlayed.mode === 'select') {
@@ -115,13 +124,27 @@ const Game:FC = () => {
     )
   }
 
+  const setDifficult = (wordsToCatch:number, maxAttempts:number, wordsSelectLimit:number) => {
+    setWordsToCatch(() => wordsToCatch);
+    setMaxAttempts(() => maxAttempts);
+    setWordsSelectLimit(() => wordsSelectLimit);
+    showGameOptionsMenu(() => false);
+  }
+
   return (
     <GameContainer theme={appTheme}>
+      {showingGameOptionsMenu 
+      && 
+      <GameOptionsMenu handleDifficult={setDifficult} />
+      ||
       <GameContext.Provider value={{ 
-        intentsCount: intentsCount, 
+        finishGame,
         gameMode: gameMode,
+        intentsCount: intentsCount, 
+        maxAttempts,
         playerPoints,
-        finishGame
+        wordsSelectLimit,
+        wordsToCatch
       }}>
         <PointsCounterView points={playerPoints} />
         {players.map(player => 
@@ -136,7 +159,7 @@ const Game:FC = () => {
               />
           )
         }
-      </GameContext.Provider>
+      </GameContext.Provider>}
     </GameContainer>
   );
 }

@@ -12,7 +12,7 @@ type Props = {
 
 const GuessView:FC<Props> = ({ onSendIntents, words }) => {
 
-  const { intentsCount }:any = useContext(GameContext);
+  const { intentsCount, maxAttempts }:any = useContext(GameContext);
   const appTheme = useTheme();
 
   const [wordsIntents, setWordsIntents] = useState<Array<any>>([]);
@@ -59,7 +59,7 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
         <WordsContainer key='guess-words-container' theme={appTheme}>
           {words.map((word, index:number) => {
                 const isGuessed = isGuessedWord(word);
-                const hasUsedAllAttempts = allAttemptsUsed(word, 3);
+                const hasUsedAllAttempts = allAttemptsUsed(word, maxAttempts);
                 return (
                   <>
                     <GuessWordItem 

@@ -1,10 +1,11 @@
 import axios from 'axios';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 import DictionaryItem from './DictionaryItem';
 import WithSelect from './WithSelect';
 import { ActionButton, ActionButtonsContainer, ButtonsContainer, DicButton, DictionaryContainer, 
         LetterButtonsContainer, LetterButtonsWrapper, ShowingLetterTitle, WordsContainer } from './gameRoomUtils/DictionaryUtils';
+import { GameContext } from './Game';
 
 type Meaning = {
   partOfSpeech:string,
@@ -23,7 +24,7 @@ type Props = {
 
 const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   const appTheme = useTheme();
-  const shouldWordsSelect = 4;
+  const { wordsSelectLimit } = useContext(GameContext);
 
   const [wordsDef, setWordsDef]  = useState<Array<WordDef>>([]);
   const [showingLetter, setShowingLetter] = useState<string>('a');
@@ -122,10 +123,10 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
 
   const handleWordSelect = (word:any, selected:boolean) => {
     if (selected) {
-      if (wordsSelected.length < shouldWordsSelect) {
+      if (wordsSelected.length < wordsSelectLimit) {
         setWordsSelected(() => new Array<any>(...wordsSelected, word));
       } else {
-        alert(`You must select only ${shouldWordsSelect} words!`);
+        alert(`You must select only ${wordsSelectLimit} words!`);
       }
     } else if (wordsSelected.length > 0) {
         if (wordsSelected.find(element => element.word === word.word)) {
@@ -137,8 +138,8 @@ const Dictionary:FC<Props> = ({ onSelectedDone }) => {
   }
 
   const handleDone = () => {
-    if (wordsSelected.length < shouldWordsSelect) {
-      alert(`You must select ${shouldWordsSelect} words`);
+    if (wordsSelected.length < wordsSelectLimit) {
+      alert(`You must select ${wordsSelectLimit} words`);
     } else if (wordsSelected.length > 0) {
       onSelectedDone(wordsSelected);
     } else {

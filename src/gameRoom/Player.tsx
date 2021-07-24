@@ -20,8 +20,8 @@ type Props = {
 }
 
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, guessEnd }) => {
-  const { gameMode, playerPoints, finishGame } = useContext(GameContext);
-  const wordsToBeSelected = 1;
+  const { gameMode, playerPoints, finishGame, wordsToCatch } = useContext(GameContext);
+  const wordsToBeSelected = wordsToCatch;
   const [showGuessEndModal, setShowGuessEnd] = useState<boolean>(false);
 
   useEffect(() => {
@@ -54,7 +54,6 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
           return <GuessView onSendIntents={handleIntent} words={turn.words} />
       }
     }
-    /* return <h2>Waiting turn...</h2>; */
   }
 
   const getRandomInt = (min:number, max:number) => {
