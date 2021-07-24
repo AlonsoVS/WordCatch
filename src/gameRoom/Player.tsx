@@ -97,14 +97,21 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
     );
   }
 
+  useEffect(() => {
+    if (gameMode === 'alone' && id === 2) {
+      if (turn.mode === 'select' && !showGuessEndModal) {
+        autoSelect();
+      }
+    }
+  })
+
   return (
     <>
       {(gameMode !== 'alone' || id !== 2) 
         && <>
             {turn.mode === 'guess' && showGuessEndModal && getGuessEndModal()}
             {getView()}
-          </> 
-          || autoSelect()}
+          </> }
     </>
   )
 }
