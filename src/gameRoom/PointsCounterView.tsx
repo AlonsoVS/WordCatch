@@ -4,10 +4,11 @@ import styled from 'styled-components'
 const CounterView = styled.a`
   align-self: center;
   color: ${props => props.theme.primaryText};
-  font-size: large;
+  font-size: medium;
+  text-align: end;
+  width: 70%;
   @media (min-height: 328px) {
-    text-align: end;
-    width: 80%;
+    font-size: large;
     max-width: 800px;
     min-width: 200px;
   }

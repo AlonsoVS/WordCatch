@@ -124,9 +124,12 @@ export const LetterButtonsContainer = styled.div`
 
 export const ShowingLetterTitle = styled.span`
   color: ${props => props.theme.primaryText};
-  font-size: xx-large;
+  font-size: large;
+  @media (min-height: 328px) {
+    font-size: xx-large;
+  };
   font-weight: 500;
-  margin: 1vh;
+  margin: 0 0 1vh;
   text-transform: uppercase;
 `
 

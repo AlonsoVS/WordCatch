@@ -22,18 +22,27 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
   }
 
   const isFirsAttemp = (word:any) => {
-    const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-    return wordCount.intents === 0;
+    if (intentsCount.length > 0) {
+      const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
+      return wordCount.intents === 0;
+    }
+    return false;
   }
 
   const allAttemptsUsed = (word:any, maxAttemps:number):boolean => {
     const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-    return wordCount.intents === maxAttemps;
+    if (wordCount !== undefined){
+      return wordCount.intents === maxAttemps;
+    }
+    return false;
   }
 
   const isGuessedWord = (word:any):boolean => {
     const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-    return wordCount.right;
+    if (wordCount !== undefined) {
+      return wordCount.right;
+    }
+    return false;
   }
 
   useEffect(() => {

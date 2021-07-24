@@ -13,26 +13,32 @@ export const GameContext = createContext<any>(null);
 
 const Game:FC = () => {
   const appTheme = useTheme();
-  const gameMode = 'alone';
+  const gameMode = 'not alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
+  const maxAttempts = 3;
 
   const [turnPlayed, setTurnPlayed] = useState<PlayTurn|null>(null);
   const [catchTurn, setCatchTurn] = useState<number>(defoultFirstPlayer);
   const [playingTurn, setPlayingTurn]  = useState<number>(defoultFirstPlayer);
   const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
-  const [playerPoints, setPLayerPoints] = useState<number>(0);
+  const [playerPoints, setPlayerPoints] = useState<number>(0);
 
   useEffect(() => {
-    turnPlayed && turnPlayed?.words.length > 0 && setIntentsCount(() => 
-    turnPlayed.words.map(word => ({ wordId: word.id, intents: 0 , right: false })));
+    if (turnPlayed && turnPlayed.mode === 'select') {
+      turnPlayed?.words.length > 0 && setIntentsCount(() => 
+      turnPlayed.words.map(word => ({ wordId: word.id, intents: 0 , right: false })));
+    } else {
+      setIntentsCount(() => []);
+    }
   }, [turnPlayed])
 
   const playTurn = (turned:PlayTurn, playerId:number) => {
     setTurnPlayed(() => turned);
 
-    const playing = players.find(id => id !== playerId);
-    if (playing) setPlayingTurn(() => playing);
+    let playing:number|undefined = playerId;
+    if (turned.mode !== 'guess') playing = players.find(id => id !== playerId);
+    if (playing !== undefined) setPlayingTurn(() => playing);
   }
 
   const createTurn = (playerId:number):PlayTurn => {
@@ -64,9 +70,9 @@ const Game:FC = () => {
 
   const addPlayerPoints = (attempts:number) => {
     if (attempts === 1) {
-      setPLayerPoints(() => playerPoints + 2);
+      setPlayerPoints(() => playerPoints + 2);
     } else {
-      setPLayerPoints(() => playerPoints + 1);
+      setPlayerPoints(() => playerPoints + 1);
     }
   }
 
@@ -89,13 +95,13 @@ const Game:FC = () => {
     });
   }
 
-  useEffect(() => {
-    let points:number = 0;
-    intentsCount.forEach(intent => {
-      if (intent.right) points += 1;
-    });
-    setPLayerPoints(() => points);
-  }, [intentsCount]);
+  const guessTurnEnd = ():boolean => {
+    if (intentsCount.length > 0){
+      const withAttempts = intentsCount.filter(intent => (intent.intents < maxAttempts) && !intent.right);
+      if (withAttempts.length === 0) return true;
+    }
+    return false;
+  }
 
   return (
     <GameContainer theme={appTheme}>
@@ -111,7 +117,8 @@ const Game:FC = () => {
               playingTurn={player === playingTurn}
               id={player}
               turn={createTurn(player)}
-              intentsReceiver={checkIntents} 
+              intentsReceiver={checkIntents}
+              guessEnd={guessTurnEnd()}
               />
           )
         }

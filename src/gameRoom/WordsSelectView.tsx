@@ -47,22 +47,22 @@ const WordsSelectView:FC<Props> = ({ words, onSelectedDone, shouldWordsSelect })
   return (
     <>
       <SelectTitle theme={appTheme}>Select words</SelectTitle>
-        <SelectViewContainer theme={appTheme}>
-          <WordsContainer>
-            {words.map(word => {
-            return (
-                  <WithSelect key={word.id} onSelect={handleWordSelect} >
-                    <DictionaryItem { ...{ ...word, selected: isWordSelected(word) } } />
-                  </WithSelect>
-                  )
-                }
-              )
-            }
-          </WordsContainer>
-          <DoneButton onClick={handleDone}>
-            Done
-          </DoneButton>
-        </SelectViewContainer>
+      <SelectViewContainer theme={appTheme}>
+        <WordsContainer>
+          {words.map(word => {
+          return (
+                <WithSelect key={word.id} onSelect={handleWordSelect} >
+                  <DictionaryItem { ...{ ...word, selected: isWordSelected(word) } } />
+                </WithSelect>
+                )
+              }
+            )
+          }
+        </WordsContainer>
+        <DoneButton onClick={handleDone}>
+          Done
+        </DoneButton>
+      </SelectViewContainer>
     </>
   )
 }
