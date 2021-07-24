@@ -1,10 +1,11 @@
 import { FC, useContext, useEffect, useState } from 'react'
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { MainCard } from '../main/MainCard';
 import { PlayGameButton } from '../main/PlayGameButton';
 import Dictionary from './Dictionary';
 import { GameContext } from './Game';
 import GuessView from './GuessView';
+import PointsCounterView from './PointsCounterView';
 import WordsSelectView from './WordsSelectView';
 
 type PlayTurn = {
@@ -35,15 +36,32 @@ const GuessEndModal = styled.div`
 
 const GuessEndModalCard = styled(MainCard)`
   max-width: 280px;
+  min-height: 186px;
   padding: 1rem;
 `
 
 const ModalButton = styled(PlayGameButton)`
+  background: ${props => props.theme.primaryLight};
+  color: ${props => props.theme.primaryText};
+  margin: 0.2rem;
   padding: 0.4rem;
 `
 
+const PointsCounter = styled.a`
+  color: ${props => props.theme.secondary};
+  height: fit-content;
+  font-size: xx-large;
+  margin: 1rem 0;
+  text-align: center;
+  width: 100%;
+  @media (min-height: 328px) {
+    font-size: xx-large;
+    max-width: 800px;
+  }
+`
+
 const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, guessEnd }) => {
-  const { gameMode } = useContext(GameContext);
+  const { gameMode, playerPoints, finishGame } = useContext(GameContext);
   const wordsToBeSelected = 1;
   const [showGuessEndModal, setShowGuessEnd] = useState<boolean>(false);
 
@@ -103,11 +121,19 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
    playWords(turn.words);
   }
 
+  const handleFinishGame = () => {
+    finishGame();
+  }
+
   const getGuessEndModal = () => {
     return (
       <GuessEndModal>
         <GuessEndModalCard>
+          <PointsCounter>
+            Pts {playerPoints}
+          </PointsCounter>
           <ModalButton onClick={handleEndTurn}>Continue</ModalButton>
+          <ModalButton onClick={handleFinishGame}>Finish Game</ModalButton>
         </GuessEndModalCard>
       </GuessEndModal>
     );
@@ -115,11 +141,12 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
 
   return (
     <>
-      {(gameMode !== 'alone' || id !== 2) && 
-          <>
+      {(gameMode !== 'alone' || id !== 2) 
+        && <>
             {turn.mode === 'guess' && showGuessEndModal && getGuessEndModal()}
             {getView()}
-          </> || autoSelect()}
+          </> 
+          || autoSelect()}
     </>
   )
 }

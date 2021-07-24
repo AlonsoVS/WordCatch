@@ -15,12 +15,13 @@ const CounterView = styled.a`
 `
 
 type Props = {
-  points:number
+  points:number,
+  className:string|undefined
 }
 
-const PointsCounterView:FC<Props> = ({points}) => {
+const PointsCounterView:FC<Props> = ({points, className}) => {
   return (
-    <CounterView>
+    <CounterView className={className}>
       Pts {points}
     </CounterView>
   )

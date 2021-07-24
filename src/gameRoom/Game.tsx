@@ -3,6 +3,7 @@ import Player from './Player';
 import { GameContainer } from './gameRoomUtils/GameUtils';
 import { useTheme } from 'styled-components';
 import PointsCounterView from './PointsCounterView';
+import { useRouter } from 'next/dist/client/router';
 
 type PlayTurn = {
   mode:string,
@@ -12,6 +13,7 @@ type PlayTurn = {
 export const GameContext = createContext<any>(null);
 
 const Game:FC = () => {
+  const router = useRouter();
   const appTheme = useTheme();
   const gameMode = 'not alone';
   const players = [1, 2];
@@ -103,11 +105,23 @@ const Game:FC = () => {
     return false;
   }
 
+  const finishGame = () => {
+    router.push(
+      {
+        pathname: '/'
+      }, 
+      undefined,
+      { shallow: true }
+    )
+  }
+
   return (
     <GameContainer theme={appTheme}>
       <GameContext.Provider value={{ 
         intentsCount: intentsCount, 
-        gameMode: gameMode
+        gameMode: gameMode,
+        playerPoints,
+        finishGame
       }}>
         <PointsCounterView points={playerPoints} />
         {players.map(player => 
