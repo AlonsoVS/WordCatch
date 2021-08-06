@@ -5,6 +5,7 @@ import { useTheme } from 'styled-components';
 import PointsCounterView from './PointsCounterView';
 import { useRouter } from 'next/dist/client/router';
 import GameOptionsMenu from './GameOptionsMenu';
+import { io } from 'socket.io-client';
 
 type PlayTurn = {
   mode:string,
@@ -23,6 +24,8 @@ const Game:FC = () => {
   const gameMode = 'alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
+
+  const socket = io('http://localhost:8080/game-room', { autoConnect: false });
   
   const [wordsSelectLimit, setWordsSelectLimit] = useState<number>(6)
   const [maxAttempts, setMaxAttempts] = useState<number>(3);
@@ -147,18 +150,15 @@ const Game:FC = () => {
         wordsToCatch
       }}>
         <PointsCounterView points={playerPoints} />
-        {players.map(player => 
-            <Player
-              key={player} 
+        <Player
+              key={1} 
               onPlayTurn={playTurn}
-              playingTurn={player === playingTurn}
-              id={player}
-              turn={createTurn(player)}
+              playingTurn={1 === playingTurn}
+              id={1}
+              turn={createTurn(1)}
               intentsReceiver={checkIntents}
               guessEnd={guessTurnEnd()}
               />
-          )
-        }
       </GameContext.Provider>}
     </GameContainer>
   );
