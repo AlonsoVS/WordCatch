@@ -14,7 +14,12 @@ const MenuContainer = styled(MainCard)`
   padding: 1rem;
 `
 
-const MenuButton = styled(PlayGameButton)`
+interface StyledProps {
+  selected:boolean
+}
+
+const MenuButton = styled(PlayGameButton)<StyledProps>`
+  background: ${props => props.selected ? props.theme.secondary : 'white'};
   margin: 0.2rem 0;
   padding: calc(0.2rem + 0.6vw + 0.6vh);
   font-size: medium;
@@ -22,9 +27,11 @@ const MenuButton = styled(PlayGameButton)`
 
 type Props = {
   handleDifficult:Function
+  handlePlayerNumb:Function
+  numberOfPlayer:number
 }
 
-const GameOptionsMenu:FC<Props> = ({ handleDifficult }) => {
+const GameOptionsMenu:FC<Props> = ({ handleDifficult, handlePlayerNumb, numberOfPlayer }) => {
 
   const setEasyDifficult = () => {
     handleDifficult(1, 6, 6);
@@ -38,6 +45,10 @@ const GameOptionsMenu:FC<Props> = ({ handleDifficult }) => {
     handleDifficult(4, 2, 14);
   }
 
+  const setPlayerNumb = (numb:number) => {
+    handlePlayerNumb(numb);
+  }
+
   return (
     <>
       <MenuTitle>Select difficult</MenuTitle>
@@ -45,6 +56,18 @@ const GameOptionsMenu:FC<Props> = ({ handleDifficult }) => {
         <MenuButton onClick={setEasyDifficult}> Easy </MenuButton>
         <MenuButton onClick={setMediumDifficult}> Medium </MenuButton>
         <MenuButton onClick={setHardDifficult}> Hard </MenuButton>
+        <MenuButton 
+          onClick={() => setPlayerNumb(1)}
+          selected={numberOfPlayer === 1}
+          > 
+          Player 1
+        </MenuButton>
+        <MenuButton 
+          onClick={() => setPlayerNumb(2)} 
+          selected={numberOfPlayer === 2}
+          > 
+          Player 2 
+        </MenuButton>
       </MenuContainer>
     </>
   );

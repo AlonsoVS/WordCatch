@@ -6,7 +6,7 @@ import UserRoomDataView, { PlayerData } from '../src/gameRoom/gameRoomUtils/User
 import { PlayGameContext } from './_app';
 
 const PlayGame:FC = () => {
-  const { addConnection, connection } = useContext(PlayGameContext);
+  const { addConnection, connection, creatorOfRoom } = useContext(PlayGameContext);
   const roomActions = ['create', 'connect'];
   const [actionRoom, setActionRoom] = useState<string>(roomActions[0]);
   const [playerData, setPlayerData] = useState<PlayerData>();
@@ -25,11 +25,11 @@ const PlayGame:FC = () => {
       const connection:Function = SocketConnection(playerData.userId);
       if (addConnection) {
         connection(actionRoom, playerData.roomId);
-        addConnection(connection);
+        addConnection(connection, actionRoom === 'create');
         router.push('game-room');
       }
     }
-  }, [actionRoom, addConnection, connection, playerData, router]);
+  }, [actionRoom, addConnection, connection, creatorOfRoom, playerData, router]);
 
   const getView = () => {
     if (playerData) {

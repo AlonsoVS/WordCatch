@@ -1,4 +1,4 @@
-import { createContext, FC, useEffect, useState } from 'react'
+import { createContext, FC, useContext, useEffect, useState } from 'react'
 import Player from './Player';
 import { GameContainer } from './gameRoomUtils/GameUtils';
 import { useTheme } from 'styled-components';
@@ -6,6 +6,7 @@ import PointsCounterView from './PointsCounterView';
 import { useRouter } from 'next/dist/client/router';
 import GameOptionsMenu from './GameOptionsMenu';
 import { io } from 'socket.io-client';
+import { PlayGameContext } from '../../pages/_app';
 
 type PlayTurn = {
   mode:string,
@@ -15,17 +16,16 @@ type PlayTurn = {
 export const GameContext = createContext<any>(null);
 
 type Props = {
-  showOptionsMenu:boolean
+  socketConnection:Function
 }
 
-const Game:FC = () => {
+const Game:FC<Props> = ({ socketConnection }) => {
+  const { creatorOfRoom } = useContext(PlayGameContext);
   const router = useRouter();
   const appTheme = useTheme();
-  const gameMode = 'alone';
+  const gameMode = 'not alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
-
-  const socket = io('http://localhost:8080/game-room', { autoConnect: false });
   
   const [wordsSelectLimit, setWordsSelectLimit] = useState<number>(6)
   const [maxAttempts, setMaxAttempts] = useState<number>(3);
@@ -35,8 +35,9 @@ const Game:FC = () => {
   const [playingTurn, setPlayingTurn]  = useState<number>(defoultFirstPlayer);
   const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
   const [playerPoints, setPlayerPoints] = useState<number>(0);
+  const [playerNumber, setPlayerNumber] = useState<number>(2);
 
-  const [showingGameOptionsMenu, showGameOptionsMenu] = useState<boolean>(true);
+  const [showingGameOptionsMenu, showGameOptionsMenu] = useState<boolean|undefined>(creatorOfRoom);
 
   useEffect(() => {
     if (turnPlayed && turnPlayed.mode === 'select') {
@@ -45,7 +46,7 @@ const Game:FC = () => {
     } else {
       setIntentsCount(() => []);
     }
-  }, [turnPlayed])
+  }, [turnPlayed]);
 
   const playTurn = (turned:PlayTurn, playerId:number) => {
     setTurnPlayed(() => turned);
@@ -95,9 +96,9 @@ const Game:FC = () => {
       const wordToGuess = turnPlayed?.words.find(word => word.id === intent.id);
       const rightAnswer = wordToGuess?.word === intent.word;
 
-      const wordAttempsCount = intentsCount.find(word => word.wordId === intent.id);
+      const wordAttemptsCount = intentsCount.find(word => word.wordId === intent.id);
       const totalAttempsCount = intentsCount.filter(word => word.wordId !== intent.id);
-      const attemptsUpdated = wordAttempsCount.intents + 1;
+      const attemptsUpdated = wordAttemptsCount.intents + 1;
       setIntentsCount(() => {
         return [ ...totalAttempsCount, 
                 { wordId: intent.id, intents:  attemptsUpdated, right: rightAnswer } ];
@@ -134,11 +135,19 @@ const Game:FC = () => {
     showGameOptionsMenu(() => false);
   }
 
+  const setPlayerNumb = (numb:number) => {
+    setPlayerNumber(() => numb);
+  }
+
   return (
     <GameContainer theme={appTheme}>
       {showingGameOptionsMenu 
       && 
-      <GameOptionsMenu handleDifficult={setDifficult} />
+      <GameOptionsMenu 
+        handleDifficult={setDifficult} 
+        handlePlayerNumb={setPlayerNumb}
+        numberOfPlayer={playerNumber}
+        />
       ||
       <GameContext.Provider value={{ 
         finishGame,
@@ -151,11 +160,11 @@ const Game:FC = () => {
       }}>
         <PointsCounterView points={playerPoints} />
         <Player
-              key={1} 
+              key={playerNumber} 
               onPlayTurn={playTurn}
-              playingTurn={1 === playingTurn}
-              id={1}
-              turn={createTurn(1)}
+              playingTurn={playerNumber === playingTurn}
+              id={playerNumber}
+              turn={createTurn(playerNumber)}
               intentsReceiver={checkIntents}
               guessEnd={guessTurnEnd()}
               />
