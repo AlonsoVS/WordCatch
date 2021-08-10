@@ -5,8 +5,9 @@ import { useTheme } from 'styled-components';
 import PointsCounterView from './PointsCounterView';
 import { useRouter } from 'next/dist/client/router';
 import GameOptionsMenu from './GameOptionsMenu';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { PlayGameContext } from '../../pages/_app';
+import { ConnectionProps } from './gameRoomUtils/SocketConnection';
 
 type PlayTurn = {
   mode:string,
@@ -19,23 +20,29 @@ type Props = {
   socketConnection:Function
 }
 
-const Game:FC<Props> = ({ socketConnection }) => {
-  const { creatorOfRoom } = useContext(PlayGameContext);
+export type RoomConfig = {
+  selectLimit:number
+  maxAttempts:number
+  catchTurn:number
+}
+
+const Game:FC = () => {
+  const { creatorOfRoom, connection } = useContext(PlayGameContext);
   const router = useRouter();
   const appTheme = useTheme();
   const gameMode = 'not alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
-  
+
   const [wordsSelectLimit, setWordsSelectLimit] = useState<number>(6)
   const [maxAttempts, setMaxAttempts] = useState<number>(3);
   const [wordsToCatch, setWordsToCatch] = useState<number>(1);
   const [turnPlayed, setTurnPlayed] = useState<PlayTurn|null>(null);
   const [catchTurn, setCatchTurn] = useState<number>(defoultFirstPlayer);
-  const [playingTurn, setPlayingTurn]  = useState<number>(defoultFirstPlayer);
+  const [playingTurn, setPlayingTurn]  = useState<number>(catchTurn);
   const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
   const [playerPoints, setPlayerPoints] = useState<number>(0);
-  const [playerNumber, setPlayerNumber] = useState<number>(2);
+  const [playerNumber, setPlayerNumber] = useState<number>(() => creatorOfRoom ? 1 : 2);
 
   const [showingGameOptionsMenu, showGameOptionsMenu] = useState<boolean|undefined>(creatorOfRoom);
 
@@ -47,6 +54,19 @@ const Game:FC<Props> = ({ socketConnection }) => {
       setIntentsCount(() => []);
     }
   }, [turnPlayed]);
+
+  const handleConfig = (config:RoomConfig) => {
+    setWordsSelectLimit(() => config.selectLimit);
+    setMaxAttempts(() => config.maxAttempts);
+    setCatchTurn(() => config.catchTurn);
+  }
+  useEffect(() => {
+    connection && connection({ handleRoomConfig: handleConfig } as ConnectionProps);
+  }, [connection]);
+
+  useEffect(() => {
+    setPlayingTurn(() => catchTurn);
+  },[catchTurn]);
 
   const playTurn = (turned:PlayTurn, playerId:number) => {
     setTurnPlayed(() => turned);
@@ -132,11 +152,21 @@ const Game:FC<Props> = ({ socketConnection }) => {
     setWordsToCatch(() => wordsToCatch);
     setMaxAttempts(() => maxAttempts);
     setWordsSelectLimit(() => wordsSelectLimit);
-    showGameOptionsMenu(() => false);
   }
 
-  const setPlayerNumb = (numb:number) => {
-    setPlayerNumber(() => numb);
+  const setWhoCatch = (playerNumb:number) => {
+    setCatchTurn(() => playerNumb);
+    setPlayingTurn(() => playerNumb);
+  }
+
+  const setConfigRoom = () => {
+    showGameOptionsMenu(() => false);
+    connection && connection({get:true}).emit('room-config', {
+        selectLimit: wordsSelectLimit,
+        maxAttempts: maxAttempts,
+        catchTurn: catchTurn
+      } as RoomConfig
+    );
   }
 
   return (
@@ -145,8 +175,9 @@ const Game:FC<Props> = ({ socketConnection }) => {
       && 
       <GameOptionsMenu 
         handleDifficult={setDifficult} 
-        handlePlayerNumb={setPlayerNumb}
-        numberOfPlayer={playerNumber}
+        handleDone={setConfigRoom}
+        handleChangeCatchTurn={setWhoCatch}
+        catching={catchTurn}
         />
       ||
       <GameContext.Provider value={{ 

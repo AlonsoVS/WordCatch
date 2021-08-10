@@ -1,6 +1,7 @@
 import { NextRouter, useRouter } from "next/dist/client/router"
 import React, { FC } from "react"
 import { io } from "socket.io-client"
+import { RoomConfig } from "../Game"
 import { PlayerData } from "./UserRoomDataView"
 
 export type CustomRouter = NextRouter & {
@@ -8,18 +9,19 @@ export type CustomRouter = NextRouter & {
   roomId:string
 }
 
-export type ConnectionProps = (PlayerData) & {
-  action:string
+export type ConnectionProps = {
+  handleRoomConfig?:Function
+  get?:boolean
 }
 
-const SocketConnection = (userId:string) => {
+const SocketConnection = (userId:string, action:string, roomId:string) => {
   const socket = io('http://localhost:8080/game-room', { autoConnect: false });
 
   console.log('Connecting to server...');
   socket.auth = { playerID: userId };
   socket.connect();
 
-  return (action:string, roomId:string) => {
+  return ({ handleRoomConfig, get }:ConnectionProps) => {
     socket.on('connected', (playerId:string) => {
       console.log(`Connected with ID=${playerId}`);
       if(action === 'create') {
@@ -40,7 +42,15 @@ const SocketConnection = (userId:string) => {
       console.log(joinResponse);
     });
 
-    return socket;
+    socket.on('room-config', (roomConfig:RoomConfig) => {
+      if (handleRoomConfig) {
+        console.log('Room configurated => ', roomConfig);
+        handleRoomConfig(roomConfig);
+      }
+    });
+
+    if (get) return socket;
+    return;
   }
 }
 

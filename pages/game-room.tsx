@@ -6,7 +6,7 @@ const GameRoom = () => {
   const { connection } = useContext(PlayGameContext);
   if (connection) {
     return (
-      <Game socketConnection={connection} />
+      <Game/>
     )
   }
   return <h1>Error: not connected</h1>

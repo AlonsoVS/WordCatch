@@ -22,9 +22,9 @@ const PlayGame:FC = () => {
 
   useEffect(() => {
     if (playerData && !connection) {
-      const connection:Function = SocketConnection(playerData.userId);
+      const connection:Function = SocketConnection(playerData.userId, actionRoom, playerData.roomId);
       if (addConnection) {
-        connection(actionRoom, playerData.roomId);
+        connection({});
         addConnection(connection, actionRoom === 'create');
         router.push('game-room');
       }

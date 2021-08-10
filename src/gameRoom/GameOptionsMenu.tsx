@@ -27,11 +27,17 @@ const MenuButton = styled(PlayGameButton)<StyledProps>`
 
 type Props = {
   handleDifficult:Function
-  handlePlayerNumb:Function
-  numberOfPlayer:number
+  handleDone:Function
+  handleChangeCatchTurn:Function
+  catching:number
 }
 
-const GameOptionsMenu:FC<Props> = ({ handleDifficult, handlePlayerNumb, numberOfPlayer }) => {
+const GameOptionsMenu:FC<Props> = ({ 
+  handleDifficult, 
+  handleDone, 
+  handleChangeCatchTurn, 
+  catching 
+}) => {
 
   const setEasyDifficult = () => {
     handleDifficult(1, 6, 6);
@@ -45,8 +51,12 @@ const GameOptionsMenu:FC<Props> = ({ handleDifficult, handlePlayerNumb, numberOf
     handleDifficult(4, 2, 14);
   }
 
-  const setPlayerNumb = (numb:number) => {
-    handlePlayerNumb(numb);
+  const setCatchTurn = (numb:number) => {
+    handleChangeCatchTurn(numb);
+  }
+
+  const setDone = () => {
+    handleDone();
   }
 
   return (
@@ -57,16 +67,19 @@ const GameOptionsMenu:FC<Props> = ({ handleDifficult, handlePlayerNumb, numberOf
         <MenuButton onClick={setMediumDifficult}> Medium </MenuButton>
         <MenuButton onClick={setHardDifficult}> Hard </MenuButton>
         <MenuButton 
-          onClick={() => setPlayerNumb(1)}
-          selected={numberOfPlayer === 1}
+          onClick={() => setCatchTurn(1)}
+          selected={catching === 1}
           > 
-          Player 1
+          I Catch
         </MenuButton>
         <MenuButton 
-          onClick={() => setPlayerNumb(2)} 
-          selected={numberOfPlayer === 2}
+          onClick={() => setCatchTurn(2)} 
+          selected={catching === 2}
           > 
-          Player 2 
+          I Select
+        </MenuButton>
+        <MenuButton onClick={setDone} > 
+          Done
         </MenuButton>
       </MenuContainer>
     </>
