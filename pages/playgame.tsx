@@ -26,7 +26,10 @@ const PlayGame:FC = () => {
       if (addConnection) {
         connection({});
         addConnection(connection, actionRoom === 'create');
-        router.push('game-room');
+        router.push({
+          pathname: '/game-room',
+          query: playerData
+        });
       }
     }
   }, [actionRoom, addConnection, connection, creatorOfRoom, playerData, router]);

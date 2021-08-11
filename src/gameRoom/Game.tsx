@@ -5,9 +5,30 @@ import { useTheme } from 'styled-components';
 import PointsCounterView from './PointsCounterView';
 import { useRouter } from 'next/dist/client/router';
 import GameOptionsMenu from './GameOptionsMenu';
-import { io, Socket } from 'socket.io-client';
 import { PlayGameContext } from '../../pages/_app';
 import { ConnectionProps } from './gameRoomUtils/SocketConnection';
+
+
+export type WordPoints = {
+  attemptsCount:number
+  points:number
+  wordId:string
+}
+
+export type AttemptCount = {
+  count:number
+  successful:boolean
+  wordId:string
+}
+
+export type AttemptResponse = {
+  allAttempts:Array<AttemptCount>
+  attemptPoints:number
+  points:{ 
+    [player:string]:number 
+  }
+  pointsPerWord:Array<WordPoints>
+}
 
 type PlayTurn = {
   mode:string,
@@ -17,17 +38,33 @@ type PlayTurn = {
 export const GameContext = createContext<any>(null);
 
 type Props = {
-  socketConnection:Function
+  userId:string
+  roomId:string
+}
+
+export type Definition = {
+  antonyms:Array<any>
+  definition:string
+  synonyms: Array<any>
+}
+
+export type Word = {
+  definitions:Array<Definition>
+	id: string
+  partOfSpeech:string
+  word?:string
 }
 
 export type RoomConfig = {
   selectLimit:number
   maxAttempts:number
   catchTurn:number
+  wordsToCatch:number
 }
 
-const Game:FC = () => {
+const Game:FC<Props> = ({ userId, roomId }) => {
   const { creatorOfRoom, connection } = useContext(PlayGameContext);
+  const playerId = userId;
   const router = useRouter();
   const appTheme = useTheme();
   const gameMode = 'not alone';
@@ -40,7 +77,7 @@ const Game:FC = () => {
   const [turnPlayed, setTurnPlayed] = useState<PlayTurn|null>(null);
   const [catchTurn, setCatchTurn] = useState<number>(defoultFirstPlayer);
   const [playingTurn, setPlayingTurn]  = useState<number>(catchTurn);
-  const [intentsCount, setIntentsCount] = useState<Array<any>>([]);
+  const [attemptsCount, setAttemptsCount] = useState<Array<AttemptCount>>([]);
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [playerNumber, setPlayerNumber] = useState<number>(() => creatorOfRoom ? 1 : 2);
 
@@ -48,20 +85,44 @@ const Game:FC = () => {
 
   useEffect(() => {
     if (turnPlayed && turnPlayed.mode === 'select') {
-      turnPlayed?.words.length > 0 && setIntentsCount(() => 
-      turnPlayed.words.map(word => ({ wordId: word.id, intents: 0 , right: false })));
+      turnPlayed?.words.length > 0 && setAttemptsCount(() => 
+      turnPlayed.words.map(word => ({ wordId: word.id, count: 0, successful: false })));
     } else {
-      setIntentsCount(() => []);
+      setAttemptsCount(() => []);
     }
   }, [turnPlayed]);
 
-  const handleConfig = (config:RoomConfig) => {
+  const handleRoomConfig = (config:RoomConfig) => {
     setWordsSelectLimit(() => config.selectLimit);
     setMaxAttempts(() => config.maxAttempts);
     setCatchTurn(() => config.catchTurn);
+    setWordsToCatch(() => config.wordsToCatch);
   }
+
+  const handleRangeSelected = (words:Array<Word>) => {
+    setTurnPlayed(() => ({ mode: 'catch', words } as PlayTurn));
+    setPlayingTurn(() => playerNumber);
+  }
+
+  const handleWordsSelected = (words:Array<Word>) => {
+    setTurnPlayed(() => ({ mode: 'select', words } as PlayTurn));
+    setPlayingTurn(() => playerNumber);
+  }
+
+  const handleAttemptChecked = (attemptResult:AttemptResponse) => {
+    setAttemptsCount(() => attemptResult.allAttempts);
+    setPlayerPoints(() => attemptResult.points[playerId]);
+  }
+  
   useEffect(() => {
-    connection && connection({ handleRoomConfig: handleConfig } as ConnectionProps);
+    if (connection) {
+      connection({ 
+        handleRoomConfig, 
+        handleRangeSelected, 
+        handleWordsSelected,
+        handleAttemptChecked
+      } as ConnectionProps);
+    }
   }, [connection]);
 
   useEffect(() => {
@@ -71,9 +132,17 @@ const Game:FC = () => {
   const playTurn = (turned:PlayTurn, playerId:number) => {
     setTurnPlayed(() => turned);
 
+    if (connection) {
+      if (turned.mode === 'catch') {
+        connection({get:true}).emit('word-range-selected', turned.words);
+      } else if (turned.mode === 'select') {
+        connection({get:true}).emit('words-selected', turned.words);
+      }
+    }
+
     let playing:number|undefined = playerId;
     if (turned.mode !== 'guess') playing = players.find(id => id !== playerId);
-    if (playing !== undefined) setPlayingTurn(() => playing);
+    if (playing) setPlayingTurn(() => playing);
   }
 
   const createTurn = (playerId:number):PlayTurn => {
@@ -111,28 +180,14 @@ const Game:FC = () => {
     }
   }
 
-  const checkIntents = (words:Array<any>) => {
-    words.forEach(intent => {
-      const wordToGuess = turnPlayed?.words.find(word => word.id === intent.id);
-      const rightAnswer = wordToGuess?.word === intent.word;
-
-      const wordAttemptsCount = intentsCount.find(word => word.wordId === intent.id);
-      const totalAttempsCount = intentsCount.filter(word => word.wordId !== intent.id);
-      const attemptsUpdated = wordAttemptsCount.intents + 1;
-      setIntentsCount(() => {
-        return [ ...totalAttempsCount, 
-                { wordId: intent.id, intents:  attemptsUpdated, right: rightAnswer } ];
-      });
-
-      if (rightAnswer) {
-        addPlayerPoints(attemptsUpdated);
-      }
-    });
+  const checkIntents = (words:Array<Word>) => {
+    connection && connection({get:true}).emit('send-attempt', words);
   }
 
   const guessTurnEnd = ():boolean => {
-    if (intentsCount.length > 0){
-      const withAttempts = intentsCount.filter(intent => (intent.intents < maxAttempts) && !intent.right);
+    if (attemptsCount.length > 0){
+      const withAttempts = attemptsCount
+        .filter(attempt => (attempt.count < maxAttempts) && !attempt.successful);
       if (withAttempts.length === 0) return true;
     }
     return false;
@@ -164,7 +219,8 @@ const Game:FC = () => {
     connection && connection({get:true}).emit('room-config', {
         selectLimit: wordsSelectLimit,
         maxAttempts: maxAttempts,
-        catchTurn: catchTurn
+        catchTurn: catchTurn,
+        wordsToCatch: wordsToCatch
       } as RoomConfig
     );
   }
@@ -183,7 +239,7 @@ const Game:FC = () => {
       <GameContext.Provider value={{ 
         finishGame,
         gameMode: gameMode,
-        intentsCount: intentsCount, 
+        intentsCount: attemptsCount, 
         maxAttempts,
         playerPoints,
         wordsSelectLimit,
@@ -191,14 +247,14 @@ const Game:FC = () => {
       }}>
         <PointsCounterView points={playerPoints} />
         <Player
-              key={playerNumber} 
-              onPlayTurn={playTurn}
-              playingTurn={playerNumber === playingTurn}
-              id={playerNumber}
-              turn={createTurn(playerNumber)}
-              intentsReceiver={checkIntents}
-              guessEnd={guessTurnEnd()}
-              />
+          key={playerNumber} 
+          onPlayTurn={playTurn}
+          playingTurn={playerNumber === playingTurn}
+          id={playerNumber}
+          turn={createTurn(playerNumber)}
+          intentsReceiver={checkIntents}
+          guessEnd={guessTurnEnd()}
+          />
       </GameContext.Provider>}
     </GameContainer>
   );

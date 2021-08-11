@@ -1,8 +1,6 @@
-import { NextRouter, useRouter } from "next/dist/client/router"
-import React, { FC } from "react"
+import { NextRouter } from "next/dist/client/router"
 import { io } from "socket.io-client"
-import { RoomConfig } from "../Game"
-import { PlayerData } from "./UserRoomDataView"
+import { AttemptResponse, RoomConfig, Word } from "../Game"
 
 export type CustomRouter = NextRouter & {
   userId:string
@@ -11,8 +9,12 @@ export type CustomRouter = NextRouter & {
 
 export type ConnectionProps = {
   handleRoomConfig?:Function
+  handleRangeSelected?:Function
+  handleWordsSelected?:Function
+  handleAttemptChecked?:Function
   get?:boolean
 }
+
 
 const SocketConnection = (userId:string, action:string, roomId:string) => {
   const socket = io('http://localhost:8080/game-room', { autoConnect: false });
@@ -21,7 +23,13 @@ const SocketConnection = (userId:string, action:string, roomId:string) => {
   socket.auth = { playerID: userId };
   socket.connect();
 
-  return ({ handleRoomConfig, get }:ConnectionProps) => {
+  return ({ 
+    handleRoomConfig, 
+    handleRangeSelected, 
+    handleWordsSelected, 
+    handleAttemptChecked, 
+    get 
+  }:ConnectionProps) => {
     socket.on('connected', (playerId:string) => {
       console.log(`Connected with ID=${playerId}`);
       if(action === 'create') {
@@ -44,8 +52,27 @@ const SocketConnection = (userId:string, action:string, roomId:string) => {
 
     socket.on('room-config', (roomConfig:RoomConfig) => {
       if (handleRoomConfig) {
-        console.log('Room configurated => ', roomConfig);
         handleRoomConfig(roomConfig);
+      }
+    });
+
+    socket.on('word-range-selected', (words:Array<Word>) => {
+      if (handleRangeSelected) {
+        console.log('receiving range ...');
+        handleRangeSelected(words);
+      }
+    });
+
+    socket.on('words-selected', (words:Array<Word>) => {
+      if (handleWordsSelected) {
+        console.log('receiving words ...');
+        handleWordsSelected(words);
+      }
+    });
+
+    socket.on('attempt-checked', (attemptResult:AttemptResponse) => {
+      if (handleAttemptChecked) {
+        handleAttemptChecked(attemptResult);
       }
     });
 
