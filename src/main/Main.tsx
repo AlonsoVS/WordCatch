@@ -10,23 +10,23 @@ const Main: React.FC = () => {
   const router:NextRouter = useRouter();
   const appTheme = useTheme();
 
-  const playGame = ():void => {
-    router.push(
-      {
-        pathname: '/playgame',
-        query: { data: 'any' }
-      },
-      '/playgame',
-      { shallow: true }
-    );
+  const playAlone = ():void => {
+    router.push('/single-player');
+  }
+
+  const multiplayerGame = ():void => {
+    router.push('/multiplayer');
   }
 
   return (
     <MainContainer theme={appTheme}>
       <MainTitle theme={appTheme}>Word Catch</MainTitle>
       <MainCard theme={appTheme}>
-        <PlayGameButton theme={appTheme} onClick={playGame}>
-          Play Game
+        <PlayGameButton theme={appTheme} onClick={playAlone}>
+          Single Player
+        </PlayGameButton>
+        <PlayGameButton theme={appTheme} onClick={multiplayerGame}>
+          Multiplayer
         </PlayGameButton>
       </MainCard>
     </MainContainer>

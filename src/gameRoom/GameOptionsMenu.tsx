@@ -26,17 +26,19 @@ const MenuButton = styled(PlayGameButton)<StyledProps>`
 `
 
 type Props = {
+  catching:number
   handleDifficult:Function
   handleDone:Function
   handleChangeCatchTurn:Function
-  catching:number
+  multiplayer:boolean
 }
 
 const GameOptionsMenu:FC<Props> = ({ 
+  catching,
   handleDifficult, 
   handleDone, 
   handleChangeCatchTurn, 
-  catching 
+  multiplayer
 }) => {
 
   const setEasyDifficult = () => {
@@ -66,18 +68,22 @@ const GameOptionsMenu:FC<Props> = ({
         <MenuButton onClick={setEasyDifficult}> Easy </MenuButton>
         <MenuButton onClick={setMediumDifficult}> Medium </MenuButton>
         <MenuButton onClick={setHardDifficult}> Hard </MenuButton>
-        <MenuButton 
-          onClick={() => setCatchTurn(1)}
-          selected={catching === 1}
-          > 
-          I Catch
-        </MenuButton>
-        <MenuButton 
-          onClick={() => setCatchTurn(2)} 
-          selected={catching === 2}
-          > 
-          I Select
-        </MenuButton>
+        {multiplayer 
+        && 
+        <>
+          <MenuButton 
+            onClick={() => setCatchTurn(1)}
+            selected={catching === 1}
+            > 
+            I Catch
+          </MenuButton>
+          <MenuButton 
+            onClick={() => setCatchTurn(2)} 
+            selected={catching === 2}
+            > 
+            I Select
+          </MenuButton>
+        </>}
         <MenuButton onClick={setDone} > 
           Done
         </MenuButton>

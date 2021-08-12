@@ -8,7 +8,7 @@ const GameRoom = () => {
   const playerData = useRouter().query;
   if (connection) {
     return (
-      <Game { ...playerData }/>
+      <Game { ...playerData } multiplayer={true} />
     )
   }
   return <h1>Error: not connected</h1>

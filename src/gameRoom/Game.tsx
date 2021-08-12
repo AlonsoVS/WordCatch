@@ -40,6 +40,7 @@ export const GameContext = createContext<any>(null);
 type Props = {
   userId:string
   roomId:string
+  multiplayer?:boolean
 }
 
 export type Definition = {
@@ -62,12 +63,11 @@ export type RoomConfig = {
   wordsToCatch:number
 }
 
-const Game:FC<Props> = ({ userId, roomId }) => {
+const Game:FC<Props> = ({ userId, roomId, multiplayer }) => {
   const { creatorOfRoom, connection } = useContext(PlayGameContext);
-  const playerId = userId;
+  const gameMode = multiplayer? 'not alone':'alone';
   const router = useRouter();
   const appTheme = useTheme();
-  const gameMode = 'not alone';
   const players = [1, 2];
   const defoultFirstPlayer = 1;
 
@@ -79,9 +79,9 @@ const Game:FC<Props> = ({ userId, roomId }) => {
   const [playingTurn, setPlayingTurn]  = useState<number>(catchTurn);
   const [attemptsCount, setAttemptsCount] = useState<Array<AttemptCount>>([]);
   const [playerPoints, setPlayerPoints] = useState<number>(0);
-  const [playerNumber, setPlayerNumber] = useState<number>(() => creatorOfRoom ? 1 : 2);
+  const [playerNumber, setPlayerNumber] = useState<number>(() => (creatorOfRoom || !multiplayer)? 1 : 2);
 
-  const [showingGameOptionsMenu, showGameOptionsMenu] = useState<boolean|undefined>(creatorOfRoom);
+  const [showingGameOptionsMenu, showGameOptionsMenu] = useState<boolean|undefined>(playerNumber === 1);
 
   useEffect(() => {
     if (turnPlayed && turnPlayed.mode === 'select') {
@@ -111,7 +111,8 @@ const Game:FC<Props> = ({ userId, roomId }) => {
 
   const handleAttemptChecked = (attemptResult:AttemptResponse) => {
     setAttemptsCount(() => attemptResult.allAttempts);
-    setPlayerPoints(() => attemptResult.points[playerId]);
+    console.log('Player Points => ', attemptResult.points, ' Player Id => ', userId);
+    setPlayerPoints(() => attemptResult.points[userId]);
   }
   
   useEffect(() => {
@@ -180,8 +181,26 @@ const Game:FC<Props> = ({ userId, roomId }) => {
     }
   }
 
-  const checkIntents = (words:Array<Word>) => {
-    connection && connection({get:true}).emit('send-attempt', words);
+  const checkAttempts = (words:Array<Word>) => {
+    if (multiplayer) connection && connection({get:true}).emit('send-attempt', words);
+    else {
+      words.forEach(attempt => {
+        const wordToGuess = turnPlayed?.words.find(word => word.id === attempt.id);
+        const successful = wordToGuess?.word === attempt.word;
+  
+        const wordAttemptsCount = attemptsCount.find(word => word.wordId === attempt.id);
+        const totalAttemptsCount = attemptsCount.filter(word => word.wordId !== attempt.id);
+        const attemptsUpdated = ((wordAttemptsCount && wordAttemptsCount.count) || 0) + 1;
+        setAttemptsCount(() => {
+          return [ ...totalAttemptsCount, 
+                  { wordId: attempt.id, count: attemptsUpdated, successful: successful } as AttemptCount ];
+        });
+  
+        if (successful) {
+          addPlayerPoints(attemptsUpdated);
+        }
+      });
+    }
   }
 
   const guessTurnEnd = ():boolean => {
@@ -216,13 +235,15 @@ const Game:FC<Props> = ({ userId, roomId }) => {
 
   const setConfigRoom = () => {
     showGameOptionsMenu(() => false);
-    connection && connection({get:true}).emit('room-config', {
-        selectLimit: wordsSelectLimit,
-        maxAttempts: maxAttempts,
-        catchTurn: catchTurn,
-        wordsToCatch: wordsToCatch
-      } as RoomConfig
-    );
+    if (multiplayer) {
+      connection && connection({get:true}).emit('room-config', {
+          selectLimit: wordsSelectLimit,
+          maxAttempts: maxAttempts,
+          catchTurn: catchTurn,
+          wordsToCatch: wordsToCatch
+        } as RoomConfig
+      );
+    }
   }
 
   return (
@@ -230,10 +251,11 @@ const Game:FC<Props> = ({ userId, roomId }) => {
       {showingGameOptionsMenu 
       && 
       <GameOptionsMenu 
+        catching={catchTurn}
         handleDifficult={setDifficult} 
         handleDone={setConfigRoom}
         handleChangeCatchTurn={setWhoCatch}
-        catching={catchTurn}
+        multiplayer={multiplayer as boolean}
         />
       ||
       <GameContext.Provider value={{ 
@@ -252,9 +274,20 @@ const Game:FC<Props> = ({ userId, roomId }) => {
           playingTurn={playerNumber === playingTurn}
           id={playerNumber}
           turn={createTurn(playerNumber)}
-          intentsReceiver={checkIntents}
+          intentsReceiver={checkAttempts}
           guessEnd={guessTurnEnd()}
           />
+        {!multiplayer 
+        && 
+        <Player
+          key={2} 
+          onPlayTurn={playTurn}
+          playingTurn={2 === playingTurn}
+          id={2}
+          turn={createTurn(2)}
+          intentsReceiver={checkAttempts}
+          guessEnd={guessTurnEnd()}
+          />}
       </GameContext.Provider>}
     </GameContainer>
   );

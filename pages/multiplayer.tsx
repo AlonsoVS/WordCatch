@@ -5,7 +5,7 @@ import SocketConnection from '../src/gameRoom/gameRoomUtils/SocketConnection';
 import UserRoomDataView, { PlayerData } from '../src/gameRoom/gameRoomUtils/UserRoomDataView';
 import { PlayGameContext } from './_app';
 
-const PlayGame:FC = () => {
+const MultiplayerGame:FC = () => {
   const { addConnection, connection, creatorOfRoom } = useContext(PlayGameContext);
   const roomActions = ['create', 'connect'];
   const [actionRoom, setActionRoom] = useState<string>(roomActions[0]);
@@ -29,7 +29,7 @@ const PlayGame:FC = () => {
         router.push({
           pathname: '/game-room',
           query: playerData
-        });
+        }, '/game-room');
       }
     }
   }, [actionRoom, addConnection, connection, creatorOfRoom, playerData, router]);
@@ -57,4 +57,4 @@ const PlayGame:FC = () => {
   );
 }
 
-export default PlayGame;
+export default MultiplayerGame;
