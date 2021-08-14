@@ -65,6 +65,7 @@ export type RoomConfig = {
 
 const Game:FC<Props> = ({ userId, roomId, multiplayer }) => {
   const { creatorOfRoom, connection } = useContext(PlayGameContext);
+  const playerName = userId;
   const gameMode = multiplayer? 'not alone':'alone';
   const router = useRouter();
   const appTheme = useTheme();
@@ -108,13 +109,12 @@ const Game:FC<Props> = ({ userId, roomId, multiplayer }) => {
     setTurnPlayed(() => ({ mode: 'select', words } as PlayTurn));
     setPlayingTurn(() => playerNumber);
   }
-
+  
   const handleAttemptChecked = (attemptResult:AttemptResponse) => {
     setAttemptsCount(() => attemptResult.allAttempts);
-    console.log('Player Points => ', attemptResult.points, ' Player Id => ', userId);
-    setPlayerPoints(() => attemptResult.points[userId]);
+    setPlayerPoints(() => attemptResult.points[playerName]);
   }
-  
+
   useEffect(() => {
     if (connection) {
       connection({ 
@@ -157,14 +157,7 @@ const Game:FC<Props> = ({ userId, roomId, multiplayer }) => {
 
     let words:Array<any> = [];
     if (turnPlayed) {
-      if (turnMode === 'guess') {
-        words = turnPlayed.words.map(element => { 
-          const { word, ...withoutWord } = element;
-          return withoutWord;
-        })
-      } else {
-        words = turnPlayed.words;
-      }
+      words = turnPlayed.words;
     };
 
     return {

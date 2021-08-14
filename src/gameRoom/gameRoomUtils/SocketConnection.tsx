@@ -7,46 +7,56 @@ export type CustomRouter = NextRouter & {
   roomId:string
 }
 
+export type JoinToRoomResponse = { 
+  roomId:string
+  user:string, 
+  usersInRoom:Array<string>
+}
+
 export type ConnectionProps = {
   handleRoomConfig?:Function
   handleRangeSelected?:Function
   handleWordsSelected?:Function
   handleAttemptChecked?:Function
+  handleConnected?:Function
+  handleGetRooms?:Function
   get?:boolean
 }
 
 
-const SocketConnection = (userId:string, action:string, roomId:string) => {
+const SocketConnection = (userId:string) => {
   const socket = io('http://localhost:8080/game-room', { autoConnect: false });
 
   console.log('Connecting to server...');
   socket.auth = { playerID: userId };
   socket.connect();
 
-  return ({ 
+  return ({
+    handleConnected,
     handleRoomConfig, 
     handleRangeSelected, 
     handleWordsSelected, 
-    handleAttemptChecked, 
+    handleAttemptChecked,
+    handleGetRooms, 
     get 
   }:ConnectionProps) => {
     socket.on('connected', (playerId:string) => {
       console.log(`Connected with ID=${playerId}`);
-      if(action === 'create') {
-        console.log(`Trying to create room with ID=${roomId}`);
-        socket.emit('create-room', roomId);
-      } else if (action === 'connect') {
-        console.log(`Trying to connect to room with ID=${roomId}`);
-        socket.emit('join-to-room', roomId);
+      if (handleConnected) {
+        handleConnected(playerId, socket);
       }
+    });
+
+    socket.on('get-rooms', (rooms:Array<string>) => {
+      handleGetRooms && handleGetRooms(rooms);
     });
 
     socket.on('created-room', (room:string) => {
       console.log(`Room with ID=${room} was created`);
     });
 
-    socket.on('user-joined', (joinResponse:any) => {
-      console.log(`Player connected to room with ID=${roomId}`);
+    socket.on('user-joined', (joinResponse:JoinToRoomResponse) => {
+      console.log(`Player connected to room with ID=${joinResponse.roomId}`);
       console.log(joinResponse);
     });
 

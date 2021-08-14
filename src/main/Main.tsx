@@ -1,5 +1,5 @@
 import { NextRouter, useRouter } from 'next/dist/client/router';
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTheme } from 'styled-components';
 import { MainContainer } from './MainContainer';
 import { PlayGameButton } from './PlayGameButton';

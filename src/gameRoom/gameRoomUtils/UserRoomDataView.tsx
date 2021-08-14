@@ -1,38 +1,46 @@
-import { useState } from "react";
+import React, { FC, useState } from "react";
+import { ButtonInput, GuessTitle, WordForm } from "./GuessViewUtils";
 
 export type PlayerData = {
   userId:string
   roomId:string
 }
 
-const UserRoomDataView = ({ onDataSubmit, action }:{onDataSubmit:Function, action:string}) => {
-  const [userId, setUserId] = useState<string>('');
-  const [roomId, setRoomId] = useState<string>('');
+type Props = {
+  onDataSubmit:Function, 
+  action:string, 
+  dataType:string
+}
+
+const Title = GuessTitle;
+
+const UserRoomDataView:FC<Props> = ({ onDataSubmit, action, dataType }) => {
+  const [data, setData] = useState<string>('');
 
   const handleDataSubmit = (e:any) => {
     e.preventDefault();
     onDataSubmit({
-      userId,
-      roomId,
+      [dataType]:data
     });
   }
-  const handleUserIdCange = (e:any) => {
+  const handleDataChange = (e:any) => {
     e.preventDefault();
-    setUserId(() => e.target.value);
+    setData(() => e.target.value);
   }
-  const handleRoomIdChange = (e:any) => {
-    e.preventDefault();
-    setRoomId(() => e.target.value);
-  }
+
+  const titleField = dataType === 'userId'? 'Player Name':'Room Name';
   return (
-    <div>
-      <h2>{`${action} room`}</h2>
-      <form onSubmit={handleDataSubmit}>
-        <input type='text' placeholder='Insert a userID' value={userId} onChange={handleUserIdCange}/>
-        <input type='text' placeholder='Insert a roomID' value={roomId} onChange={handleRoomIdChange}/>
-        <input type='submit' value={action}/>
-      </form>
-    </div>
+    <>
+      <Title>{titleField}</Title>
+      <WordForm onSubmit={handleDataSubmit}>
+        <input 
+          type='text' 
+          placeholder={`Insert a ${titleField}`} 
+          value={data} 
+          onChange={handleDataChange}/>
+        <ButtonInput type='submit' value={action}/>
+      </WordForm>
+    </>
   )
 }
 

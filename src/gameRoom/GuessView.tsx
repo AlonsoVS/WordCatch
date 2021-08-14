@@ -21,10 +21,11 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
     setWordsIntents(() => [...wordsIntents, word]);
   }
 
-  const isFirsAttemp = (word:Word) => {
+  const isFirstAttempt = (word:Word) => {
+    console.log("Attempts => ", intentsCount);
     if (intentsCount.length > 0) {
       const wordCount = intentsCount.find((count:AttemptCount) => count.wordId === word.id);
-      return wordCount.count === 0;
+      if (wordCount) return wordCount.count === 0;
     }
     return false;
   }
@@ -73,7 +74,7 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
                       && <AttempMessage key={`${word.id}-guessed-message`} > Word Guessed! 🥳 </AttempMessage>
                       || hasUsedAllAttempts 
                       && <AttempMessage key={`${word.id}-guessed-message`}>Game Over. Maybe this is not for you 🤪 </AttempMessage>
-                      || !isFirsAttemp(word) 
+                      || !isFirstAttempt(word) 
                       && <AttempMessage key={`${word.id}-guessed-message`}>Not this time. Please try again! 😓 </AttempMessage> }
                   </>
                 )

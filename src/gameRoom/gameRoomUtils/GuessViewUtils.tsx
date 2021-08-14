@@ -66,6 +66,7 @@ export const ButtonInput = styled.input`
   min-width: 50px;
   max-width: 60px;
   padding: 0.4rem 1rem;
+  text-transform: capitalize;
   width: min-content !important;
   &:focus, &:hover {
     background: ${props => props.theme.secondary};
