@@ -14,17 +14,32 @@ const MenuContainer = styled(MainCard)`
   padding: 1rem;
 `
 
-const MenuButton = styled(PlayGameButton)`
+interface StyledProps {
+  selected:boolean
+}
+
+const MenuButton = styled(PlayGameButton)<StyledProps>`
+  background: ${props => props.selected ? props.theme.secondary : 'white'};
   margin: 0.2rem 0;
   padding: calc(0.2rem + 0.6vw + 0.6vh);
   font-size: medium;
 `
 
 type Props = {
+  catching:number
   handleDifficult:Function
+  handleDone:Function
+  handleChangeCatchTurn:Function
+  multiplayer:boolean
 }
 
-const GameOptionsMenu:FC<Props> = ({ handleDifficult }) => {
+const GameOptionsMenu:FC<Props> = ({ 
+  catching,
+  handleDifficult, 
+  handleDone, 
+  handleChangeCatchTurn, 
+  multiplayer
+}) => {
 
   const setEasyDifficult = () => {
     handleDifficult(1, 6, 6);
@@ -38,6 +53,14 @@ const GameOptionsMenu:FC<Props> = ({ handleDifficult }) => {
     handleDifficult(4, 2, 14);
   }
 
+  const setCatchTurn = (numb:number) => {
+    handleChangeCatchTurn(numb);
+  }
+
+  const setDone = () => {
+    handleDone();
+  }
+
   return (
     <>
       <MenuTitle>Select difficult</MenuTitle>
@@ -45,6 +68,25 @@ const GameOptionsMenu:FC<Props> = ({ handleDifficult }) => {
         <MenuButton onClick={setEasyDifficult}> Easy </MenuButton>
         <MenuButton onClick={setMediumDifficult}> Medium </MenuButton>
         <MenuButton onClick={setHardDifficult}> Hard </MenuButton>
+        {multiplayer 
+        && 
+        <>
+          <MenuButton 
+            onClick={() => setCatchTurn(1)}
+            selected={catching === 1}
+            > 
+            I Catch
+          </MenuButton>
+          <MenuButton 
+            onClick={() => setCatchTurn(2)} 
+            selected={catching === 2}
+            > 
+            I Select
+          </MenuButton>
+        </>}
+        <MenuButton onClick={setDone} > 
+          Done
+        </MenuButton>
       </MenuContainer>
     </>
   );

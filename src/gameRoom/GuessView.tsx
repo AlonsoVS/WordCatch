@@ -1,6 +1,6 @@
 import React, { FC, useContext, useEffect, useState } from 'react'
 import { useTheme } from 'styled-components';
-import { GameContext } from './Game';
+import { AttemptCount, GameContext, Word } from './Game';
 import { AttempMessage, GuessTitle, 
         GuessViewContainer, WordsContainer } from './gameRoomUtils/GuessViewUtils';
 import GuessWordItem from './GuessWordItem';
@@ -17,30 +17,31 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
 
   const [wordsIntents, setWordsIntents] = useState<Array<any>>([]);
   
-  const sendIntent = (word:any) => {
+  const sendIntent = (word:Word) => {
     setWordsIntents(() => [...wordsIntents, word]);
   }
 
-  const isFirsAttemp = (word:any) => {
+  const isFirstAttempt = (word:Word) => {
+    console.log("Attempts => ", intentsCount);
     if (intentsCount.length > 0) {
-      const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-      return wordCount.intents === 0;
+      const wordCount = intentsCount.find((count:AttemptCount) => count.wordId === word.id);
+      if (wordCount) return wordCount.count === 0;
     }
     return false;
   }
 
-  const allAttemptsUsed = (word:any, maxAttemps:number):boolean => {
-    const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-    if (wordCount !== undefined){
-      return wordCount.intents === maxAttemps;
+  const allAttemptsUsed = (word:Word, maxAttempts:number):boolean => {
+    const wordCount = intentsCount.find((count:AttemptCount) => count.wordId === word.id);
+    if (wordCount){
+      return wordCount.count === maxAttempts;
     }
     return false;
   }
 
-  const isGuessedWord = (word:any):boolean => {
-    const wordCount = intentsCount.find((count:any) => count.wordId === word.id);
-    if (wordCount !== undefined) {
-      return wordCount.right;
+  const isGuessedWord = (word:Word):boolean => {
+    const wordCount = intentsCount.find((count:AttemptCount) => count.wordId === word.id);
+    if (wordCount) {
+      return wordCount.successful;
     }
     return false;
   }
@@ -73,7 +74,7 @@ const GuessView:FC<Props> = ({ onSendIntents, words }) => {
                       && <AttempMessage key={`${word.id}-guessed-message`} > Word Guessed! 🥳 </AttempMessage>
                       || hasUsedAllAttempts 
                       && <AttempMessage key={`${word.id}-guessed-message`}>Game Over. Maybe this is not for you 🤪 </AttempMessage>
-                      || !isFirsAttemp(word) 
+                      || !isFirstAttempt(word) 
                       && <AttempMessage key={`${word.id}-guessed-message`}>Not this time. Please try again! 😓 </AttempMessage> }
                   </>
                 )

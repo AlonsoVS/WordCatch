@@ -30,7 +30,7 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
     } else {
       setShowGuessEnd(() => false);
     }
-  }, [guessEnd]);
+  }, [guessEnd, playingTurn]);
 
   const playWords = (words:Array<any>) => {
     onPlayTurn({ ...turn, words }, id);
@@ -54,6 +54,7 @@ const Player:FC<Props> = ({ onPlayTurn, playingTurn, id, turn, intentsReceiver, 
           return <GuessView onSendIntents={handleIntent} words={turn.words} />
       }
     }
+    return <h1>Waiting turn...</h1>;
   }
 
   const getRandomInt = (min:number, max:number) => {
