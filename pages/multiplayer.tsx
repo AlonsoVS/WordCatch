@@ -27,9 +27,19 @@ const MultiplayerGame:FC = () => {
     setActionRoom(() => action);
   }
 
+  useEffect(() => {
+    const playerSession = localStorage.getItem('player_session');
+    if (playerSession && !playerData.userId) {
+      console.log(playerSession);
+      setPlayerData(() => JSON.parse(playerSession));
+    } else if (playerData.userId) {
+      console.log('Session data => ', playerData);
+      localStorage.setItem('player_session', JSON.stringify({ ...playerData }));
+    }
+  }, [playerData]);
+
   const handleUserData = (data:PlayerData) => {
-    setPlayerData(() => ({ ...playerData, ...data}));
-  }
+    setPlayerData(() => ({ ...playerData, ...data}));  }
 
   const handleConnected = (playerId:string, connection:Socket) => {
     setSocketConnected(() => connection);
